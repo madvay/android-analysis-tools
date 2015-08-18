@@ -1,10 +1,8 @@
-# android-analysis-tools
+# apat: android-analysis-tools
 Tools to analyze performance of Android applications.
 
-## Building from source
-1.  Clone the repository: `git clone https://github.com/madvay/android-analysis-tools.git`
-2.  Build with gradle: `./gradlew clean build`
-3.  The `./apat` script can now be run per the Usage section.
+## Running from a distribution
+Run the `bin/apat` script per the Usage section.
 
 ## Usage
 <!-- The content between the ```hashes``` will also be displayed
@@ -23,6 +21,10 @@ Available commands:
  allocs             - Allocation tracking analysis:
     parse <file>        - Parses a DDMS .alloc file
 ```
+
+## Building from source
+1.  Clone the repository: `git clone https://github.com/madvay/android-analysis-tools.git`
+2.  Build and run from the local repository: `./aapt [args]`
 
 ## License
 See the [LICENSE](LICENSE) and the [NOTICE](NOTICE) (per Section 4 d of the License) files.

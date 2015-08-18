@@ -24,6 +24,9 @@ task wrapper(type: Wrapper) {
 }
 
 apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'com.madvay.tools.android.perf.apat.Main'
 
 repositories {
     mavenCentral()
@@ -37,9 +40,6 @@ dependencies {
 jar {
     manifest {
         attributes(
-                'Main-Class': 'com.madvay.tools.android.perf.apat.Main'
-        )
-        attributes(
                 ['Specification-Title'  : 'apat - Android Performance Analysis Tools',
                  'Specification-Version': version,
                  'Specification-Vendor' : 'https://github.com/madvay/android-analysis-tools'
@@ -47,6 +47,10 @@ jar {
                 'com/madvay/tools/android/perf/apat/'
         )
     }
-    // Include classes we need at runtime within the jar.
-    from configurations.runtime.collect { it.directory ? it : zipTree(it) }
+}
+
+run {
+    if (project.hasProperty('apatArgs')) {
+        args project.apatArgs.split(' ')
+    }
 }
