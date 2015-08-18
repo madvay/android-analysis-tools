@@ -19,7 +19,7 @@ package com.madvay.tools.android.perf.apat;
 
 import com.madvay.tools.android.perf.allocs.AllocRow;
 import com.madvay.tools.android.perf.allocs.AllocTable;
-import com.madvay.tools.android.perf.allocs.AllocationsParser;
+import com.madvay.tools.android.perf.allocs.AllocationsParserAdapter;
 import com.madvay.tools.android.perf.allocs.PrettyAllocRowOutput;
 import com.madvay.tools.android.perf.common.CsvOutput;
 import com.madvay.tools.android.perf.common.TableFormatter;
@@ -164,7 +164,7 @@ public class Main {
     private static void runAllocs(CommandLine cmd) {
         switch (cmd.args.get(0)) {
             case "parse": {
-                AllocTable table = new AllocTable(AllocationsParser.parse(cmd.args.get(1)));
+                AllocTable table = new AllocTable(AllocationsParserAdapter.parse(cmd.args.get(1)));
                 if (cmd.flags.containsKey("sort")) {
                     table.sortOn(Splitter.on(',').splitToList(cmd.flags.get("sort")));
                 }

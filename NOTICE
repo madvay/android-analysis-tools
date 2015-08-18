@@ -3,11 +3,15 @@ Tools to analyze performance of Android applications.
 
 Copyright (c) 2015 by Advay Mengle.
 
-For the original AllocationsParser.java:
-    Copyright (C) 2015 The Android Open Source Project
-
 This distribution may include portions of Guava:
     Copyright (C) 2006-2015 The Guava Authors
+
+This distribution may include portions of com.android.tools.ddms:ddmlib,
+to which the following notice applies:
+    Copyright (c) 2005-2008, The Android Open Source Project
+
+For the original AllocationsParser.java:
+    Copyright (C) 2015 The Android Open Source Project
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this software except in compliance with the License.

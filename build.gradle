@@ -35,6 +35,10 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     compile 'com.google.guava:guava:18.0'
+    compile('com.android.tools.ddms:ddmlib:24.3.1') {
+        exclude group: 'net.sf.kxml'
+        exclude group: 'com.android.tools'
+    }
 }
 
 jar {
