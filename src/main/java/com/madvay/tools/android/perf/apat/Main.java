@@ -22,11 +22,7 @@ import com.madvay.tools.android.perf.allocs.AllocationsParser;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.util.List;
 
 /**
@@ -50,15 +46,39 @@ public class Main {
 
     private static void printUsage() {
         try {
-            InputStream is = Main.class.getResourceAsStream("/README");
-            BufferedReader br =
-                    new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-            String s = br.readLine();
-            while (s != null) {
-                out(s);
-                s = br.readLine();
+            List<String> lines =
+                    Resources.readLines(Resources.getResource("README.txt"), Charsets.UTF_8);
+            boolean foundUsage = false, foundBeginHash = false;
+
+            /*
+             * We want to output the lines of usage in the README.md file:
+
+            <other stuff>
+            ## Usage
+            ```
+            <stuff to display>
+            ```
+            <other stuff>
+
+             */
+            lineLoop:
+            for (String l : lines) {
+                if (foundUsage) {
+                    if (foundBeginHash) {
+                        if (l.equals("```")) {
+                            // end!
+                            break lineLoop;
+                        }
+                        out(l);
+                    }
+                    if (l.equals("```")) {
+                        foundBeginHash = true;
+                    }
+                }
+                if (l.equals("## Usage")) {
+                    foundUsage = true;
+                }
             }
-            br.close();
         } catch (IOException err) {
             err(err);
         }
@@ -67,7 +87,7 @@ public class Main {
     private static void printLicense() {
         try {
             List<String> lines =
-                    Resources.readLines(Resources.getResource("/LICENSE"), Charsets.UTF_8);
+                    Resources.readLines(Resources.getResource("LICENSE"), Charsets.UTF_8);
             for (String l : lines) {
                 out(l);
             }
@@ -84,14 +104,11 @@ public class Main {
         out("Version " + getVersion());
         out("---------------------------------------------------------------");
         try {
-            InputStream is = Main.class.getResourceAsStream("/NOTICE");
-            BufferedReader br = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8));
-            String s = br.readLine();
-            while (s != null) {
-                out(s);
-                s = br.readLine();
+            List<String> lines =
+                    Resources.readLines(Resources.getResource("NOTICE"), Charsets.UTF_8);
+            for (String l : lines) {
+                out(l);
             }
-            br.close();
         } catch (IOException err) {
             err(err);
         }

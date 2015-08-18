@@ -16,7 +16,6 @@ Available commands:
  allocs             - Allocation tracking analysis:
     parse <file>        - Parses a DDMS .alloc file
 ```
-(see [src/main/resources/README](src/main/resources/README) for latest)
 
 ## License
 See the [LICENSE](LICENSE) and the [NOTICE](NOTICE) (per Section 4 d of the License) files.
