@@ -17,23 +17,8 @@
 
 package com.madvay.tools.android.perf.common;
 
-import com.google.common.base.Function;
-
 /**
  *
  */
-public class TableFormatter<T extends Row> {
-    private final Function<? super T, String> rowFormatter;
-
-    public TableFormatter(Function<? super T, String> rowFormatter) {
-        this.rowFormatter = rowFormatter;
-    }
-
-    public String format(Table<? extends T> rows) {
-        StringBuilder sb = new StringBuilder();
-        for (T t : rows.getRows()) {
-            sb.append(rowFormatter.apply(t));
-        }
-        return sb.toString();
-    }
+public abstract class Row {
 }

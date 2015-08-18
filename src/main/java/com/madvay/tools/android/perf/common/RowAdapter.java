@@ -17,23 +17,23 @@
 
 package com.madvay.tools.android.perf.common;
 
-import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
 
 /**
  *
  */
-public class TableFormatter<T extends Row> {
-    private final Function<? super T, String> rowFormatter;
+public abstract class RowAdapter<T extends Row> {
+    public final List<String> columns;
 
-    public TableFormatter(Function<? super T, String> rowFormatter) {
-        this.rowFormatter = rowFormatter;
+    private RowAdapter() {
+        throw new UnsupportedOperationException();
     }
 
-    public String format(Table<? extends T> rows) {
-        StringBuilder sb = new StringBuilder();
-        for (T t : rows.getRows()) {
-            sb.append(rowFormatter.apply(t));
-        }
-        return sb.toString();
+    protected RowAdapter(String... columns) {
+        this.columns = ImmutableList.copyOf(columns);
     }
+
+    public abstract Object get(T row, String column);
 }

@@ -17,6 +17,9 @@
 
 package com.madvay.tools.android.perf.allocs;
 
+import com.madvay.tools.android.perf.common.Row;
+import com.madvay.tools.android.perf.common.RowAdapter;
+
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -24,7 +27,7 @@ import java.util.List;
 /**
  *
  */
-public class AllocRow {
+public class AllocRow extends Row {
     public final int id;
     public final String allocatedClass;
     public final int bytes;
@@ -38,5 +41,30 @@ public class AllocRow {
         this.bytes = bytes;
         this.thread = thread;
         this.stackTrace = ImmutableList.copyOf(stackTrace);
+    }
+
+    static final class Adapter extends RowAdapter<AllocRow> {
+
+        Adapter() {
+            super("id", "allocatedClass", "bytes", "thread", "stackTrace");
+        }
+
+        @Override
+        public Object get(AllocRow row, String column) {
+            switch (column) {
+                case "id":
+                    return row.id;
+                case "allocatedClass":
+                    return row.allocatedClass;
+                case "bytes":
+                    return row.bytes;
+                case "thread":
+                    return row.thread;
+                case "stackTrace":
+                    return row.stackTrace;
+                default:
+                    throw new IllegalArgumentException();
+            }
+        }
     }
 }

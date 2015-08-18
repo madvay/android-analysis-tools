@@ -17,12 +17,13 @@
 
 package com.madvay.tools.android.perf.apat;
 
-import com.madvay.tools.android.perf.allocs.AllocRow;
+import com.madvay.tools.android.perf.allocs.AllocTable;
 import com.madvay.tools.android.perf.allocs.AllocationsParser;
 import com.madvay.tools.android.perf.allocs.PrettyOutput;
 import com.madvay.tools.android.perf.common.TableFormatter;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Splitter;
 import com.google.common.io.Resources;
 
 import java.io.IOException;
@@ -160,7 +161,10 @@ public class Main {
     private static void runAllocs(CommandLine cmd) {
         switch (cmd.flags.get(0)) {
             case "parse": {
-                List<AllocRow> table = AllocationsParser.parse(cmd.flags.get(1));
+                AllocTable table = new AllocTable(AllocationsParser.parse(cmd.flags.get(1)));
+                if (cmd.flags.size() >= 3) {
+                    table.sortOn(Splitter.on(',').splitToList(cmd.flags.get(2)));
+                }
                 out(new TableFormatter<>(new PrettyOutput()).format(table));
                 break;
             }

@@ -15,25 +15,26 @@
  *
  */
 
-package com.madvay.tools.android.perf.common;
+package com.madvay.tools.android.perf.allocs;
 
-import com.google.common.base.Function;
+import com.madvay.tools.android.perf.common.RowAdapter;
+import com.madvay.tools.android.perf.common.Table;
+
+import java.util.List;
 
 /**
  *
  */
-public class TableFormatter<T extends Row> {
-    private final Function<? super T, String> rowFormatter;
+public class AllocTable extends Table<AllocRow> {
 
-    public TableFormatter(Function<? super T, String> rowFormatter) {
-        this.rowFormatter = rowFormatter;
+    private static final RowAdapter<AllocRow> ADAPTER = new AllocRow.Adapter();
+
+    public AllocTable(List<AllocRow> l) {
+        super(l);
     }
 
-    public String format(Table<? extends T> rows) {
-        StringBuilder sb = new StringBuilder();
-        for (T t : rows.getRows()) {
-            sb.append(rowFormatter.apply(t));
-        }
-        return sb.toString();
+    @Override
+    public RowAdapter<AllocRow> getAdapter() {
+        return ADAPTER;
     }
 }
