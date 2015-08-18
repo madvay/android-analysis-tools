@@ -22,13 +22,17 @@ Available commands:
     parse <file>        - Analyze a DDMS .alloc file
       --sort=<spec>         - Sorts the rows, where spec is a comma-separated
                               list of columns.  A column prefixed with a hyphen
-                              is sorted in descending order (otherwise ascending order).
-                              Ex: --sort=thread,-size (asc. by thread, then desc. by size)
+                              is sorted in descending order (otherwise
+                              ascending order).
+                              Ex: --sort=thread,-size (asc. by thread, then
+                              desc. by size)
 ```
 
 ## Building from source
-1.  Clone the repository: `git clone https://github.com/madvay/android-analysis-tools.git`
+1.  Clone the repository:
+`git clone https://github.com/madvay/android-analysis-tools.git`
 2.  Build and run from the local repository: `./apat [args]`
 
 ## License
-See the [LICENSE](LICENSE) and the [NOTICE](NOTICE) (per Section 4 d of the License) files.
+See the [LICENSE](LICENSE) and the [NOTICE](NOTICE) (per Section 4 d of the
+License) files.
