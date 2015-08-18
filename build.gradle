@@ -29,6 +29,11 @@ repositories {
     mavenCentral()
 }
 
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile 'com.google.guava:guava:18.0'
+}
+
 jar {
     manifest {
         attributes(
@@ -42,8 +47,6 @@ jar {
                 'com/madvay/tools/android/perf/apat/'
         )
     }
-}
-
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.11'
+    // Include classes we need at runtime within the jar.
+    from configurations.runtime.collect { it.directory ? it : zipTree(it) }
 }

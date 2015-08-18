@@ -28,6 +28,9 @@ Copyright (c) 2015 by Advay Mengle.
 For the original AllocationsParser.java:
     Copyright (C) 2015 The Android Open Source Project
 
+This binary may include portions of Guava:
+    Copyright (C) 2006-2015 The Guava Authors
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this software except in compliance with the License.
 You may obtain a copy of the License at
