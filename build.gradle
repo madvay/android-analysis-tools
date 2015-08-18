@@ -2,7 +2,7 @@ group 'com.madvay.tools.android'
 version '0.1.0-SNAPSHOT'
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '2.5'
+  gradleVersion = '2.6'
   distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
 
