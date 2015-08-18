@@ -24,7 +24,7 @@ Available commands:
 
 ## Building from source
 1.  Clone the repository: `git clone https://github.com/madvay/android-analysis-tools.git`
-2.  Build and run from the local repository: `./aapt [args]`
+2.  Build and run from the local repository: `./apat [args]`
 
 ## License
 See the [LICENSE](LICENSE) and the [NOTICE](NOTICE) (per Section 4 d of the License) files.
