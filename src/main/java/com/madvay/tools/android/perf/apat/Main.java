@@ -20,7 +20,7 @@ package com.madvay.tools.android.perf.apat;
 import com.madvay.tools.android.perf.allocs.AllocRow;
 import com.madvay.tools.android.perf.allocs.AllocTable;
 import com.madvay.tools.android.perf.allocs.AllocationsParser;
-import com.madvay.tools.android.perf.allocs.PrettyOutput;
+import com.madvay.tools.android.perf.allocs.PrettyAllocRowOutput;
 import com.madvay.tools.android.perf.common.CsvOutput;
 import com.madvay.tools.android.perf.common.TableFormatter;
 
@@ -176,7 +176,7 @@ public class Main {
                         break;
                     case "pretty":
                     default:
-                        formatter = new PrettyOutput();
+                        formatter = new PrettyAllocRowOutput();
                         break;
                 }
                 out(new TableFormatter<>(formatter).format(table));

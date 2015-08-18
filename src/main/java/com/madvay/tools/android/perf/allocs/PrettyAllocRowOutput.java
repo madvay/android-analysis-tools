@@ -28,7 +28,7 @@ import java.io.StringWriter;
 /**
  *
  */
-public class PrettyOutput implements Function<AllocRow, String> {
+public class PrettyAllocRowOutput implements Function<AllocRow, String> {
 
     @Override
     public String apply(AllocRow input) {
