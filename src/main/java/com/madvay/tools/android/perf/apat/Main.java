@@ -17,7 +17,10 @@
 
 package com.madvay.tools.android.perf.apat;
 
+import com.madvay.tools.android.perf.allocs.AllocRow;
 import com.madvay.tools.android.perf.allocs.AllocationsParser;
+import com.madvay.tools.android.perf.allocs.PrettyOutput;
+import com.madvay.tools.android.perf.common.TableFormatter;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
@@ -30,8 +33,12 @@ import java.util.List;
  */
 public class Main {
 
-    private static void out(String s) {
+    private static void outln(String s) {
         System.out.println(s);
+    }
+
+    private static void out(String s) {
+        System.out.print(s);
     }
 
     private static void err(String s) {
@@ -69,7 +76,7 @@ public class Main {
                             // end!
                             break lineLoop;
                         }
-                        out(l);
+                        outln(l);
                     }
                     if (l.equals("```")) {
                         foundBeginHash = true;
@@ -89,7 +96,7 @@ public class Main {
             List<String> lines =
                     Resources.readLines(Resources.getResource("LICENSE"), Charsets.UTF_8);
             for (String l : lines) {
-                out(l);
+                outln(l);
             }
         } catch (IOException err) {
             err(err);
@@ -101,13 +108,13 @@ public class Main {
     }
 
     private static void printVersion() {
-        out("Version " + getVersion());
-        out("---------------------------------------------------------------");
+        outln("Version " + getVersion());
+        outln("---------------------------------------------------------------");
         try {
             List<String> lines =
                     Resources.readLines(Resources.getResource("NOTICE"), Charsets.UTF_8);
             for (String l : lines) {
-                out(l);
+                outln(l);
             }
         } catch (IOException err) {
             err(err);
@@ -152,9 +159,11 @@ public class Main {
 
     private static void runAllocs(CommandLine cmd) {
         switch (cmd.flags.get(0)) {
-            case "parse":
-                AllocationsParser.process(cmd.flags.get(1));
+            case "parse": {
+                List<AllocRow> table = AllocationsParser.parse(cmd.flags.get(1));
+                out(new TableFormatter<>(new PrettyOutput()).format(table));
                 break;
+            }
             default:
                 throw new IllegalArgumentException(
                         "Unknown allocs subcommand: " + cmd.flags.get(0));

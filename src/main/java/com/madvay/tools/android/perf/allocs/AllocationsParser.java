@@ -19,6 +19,8 @@
 
 package com.madvay.tools.android.perf.allocs;
 
+import com.google.common.collect.ImmutableList;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,6 +28,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.List;
 
 public class AllocationsParser {
     public static ByteBuffer mapFile(File f, long offset, ByteOrder byteOrder) throws IOException {
@@ -141,7 +144,10 @@ public class AllocationsParser {
     *   As with other DDM traffic, strings are sent as a 4-byte length
     *   followed by UTF-16 data.
     */
-    public static void parse(ByteBuffer data) {
+    public static List<AllocRow> parse(ByteBuffer data) {
+
+        ImmutableList.Builder<AllocRow> ret = new ImmutableList.Builder<>();
+
         int messageHdrLen, entryHdrLen, stackFrameLen;
         int numEntries, offsetToStrings;
         int numClassNames, numMethodNames, numFileNames;
@@ -191,7 +197,7 @@ public class AllocationsParser {
                 data.get();
             }
 
-            String[] steArray = new String[stackDepth];
+            StackTraceElement[] steArray = new StackTraceElement[stackDepth];
 
             /*
              * Pull out the stack trace.
@@ -211,8 +217,8 @@ public class AllocationsParser {
                 methodName = methodNames[methodNameIndex];
                 methodSourceFile = fileNames[methodSourceFileIndex];
 
-                steArray[sti] =
-                        formatStackTrace(methodClassName, methodName, methodSourceFile, lineNumber);
+                steArray[sti] = new StackTraceElement(methodClassName, methodName, methodSourceFile,
+                        lineNumber);
 
                 /* we've consumed 8 bytes; gobble up any extra */
                 for (int skip = 8; skip < stackFrameLen; skip++) {
@@ -220,30 +226,18 @@ public class AllocationsParser {
                 }
             }
 
-            System.out.printf("Alloc#: %1$d, Allocated Class: %2$s, Size: %3$d, Thread: %4$d\n",
-                    numEntries - i, classNames[classNameIndex], totalSize, (short) threadId);
-            for (String stackElement : steArray) {
-                System.out.printf("       %1$s\n", stackElement);
-            }
+            ret.add(new AllocRow(numEntries - i, classNames[classNameIndex], totalSize, threadId,
+                    steArray));
         }
+        return ret.build();
     }
 
-    private static String formatStackTrace(String methodClassName, String methodName,
-                                           String methodSourceFile, short lineNumber) {
-        return methodClassName + "." + methodName +
-               (methodSourceFile != null && lineNumber >= 0 ?
-                "(" + methodSourceFile + ":" + lineNumber + ")" :
-                (methodSourceFile != null ? "(" + methodSourceFile + ")" :
-                 "(Unknown " + "Source)"));
-
-    }
-
-    public static void process(String allocFilePath) {
+    public static List<AllocRow> parse(String allocFilePath) {
         try {
             ByteBuffer buf = mapFile(new File(allocFilePath), 0, ByteOrder.BIG_ENDIAN);
-            parse(buf);
+            return parse(buf);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Could not load " + allocFilePath, e);
         }
     }
 }
