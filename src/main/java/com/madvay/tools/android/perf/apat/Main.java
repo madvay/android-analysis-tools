@@ -45,17 +45,19 @@ public class Main {
     }
 
     private static void printUsage() {
-        out("android-analysis-tools - https://github.com/madvay/android-analysis-tools");
-        out("Tools to analyze performance of Android applications.");
-        out("");
-        out("Usage:");
-        out("apat <command> <options>");
-        out("");
-        out("Available commands:");
-        out(" help            - Prints this usage message.");
-        out(" version         - Prints version and copyright info.");
-        out(" allocs          - Allocation tracking analysis:");
-        out("    parse <file>      - Parses a DDMS .alloc file");
+        try {
+            InputStream is = Main.class.getResourceAsStream("/README");
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader(is, Charset.forName("UTF-8")));
+            String s = br.readLine();
+            while (s != null) {
+                out(s);
+                s = br.readLine();
+            }
+            br.close();
+        } catch (IOException err) {
+            err(err);
+        }
     }
 
     private static String getVersion() {
