@@ -1,14 +1,15 @@
-# android-ddms-alloc-analyze
-Tools to analyze Android DDMS .alloc files
+# android-analysis-tools
+Tools to analyze performance of Android applications.
 
 ## License
 See the [LICENSE](LICENSE) and the [NOTICE](NOTICE) files.
 ```
-android-ddms-alloc-analyze - https://github.com/madvay/android-ddms-alloc-analyze
-Android DDMS Allocation Analysis Tools
+android-analysis-tools - https://github.com/madvay/android-analysis-tools
+Tools to analyze performance of Android applications.
+
 Copyright (c) 2015 by Advay Mengle.
 
-Derived from AllocationsParsers.java:
+For the original AllocationsParser.java:
     Copyright (C) 2015 The Android Open Source Project
 
 Licensed under the Apache License, Version 2.0 (the "License");
