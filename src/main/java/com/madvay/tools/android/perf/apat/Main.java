@@ -17,14 +17,17 @@
 
 package com.madvay.tools.android.perf.apat;
 
-import com.google.common.base.Charsets;
 import com.madvay.tools.android.perf.allocs.AllocationsParser;
+
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.List;
 
 /**
  *
@@ -48,8 +51,8 @@ public class Main {
     private static void printUsage() {
         try {
             InputStream is = Main.class.getResourceAsStream("/README");
-            BufferedReader br = new BufferedReader(
-                    new InputStreamReader(is, Charset.forName("UTF-8")));
+            BufferedReader br =
+                    new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
             String s = br.readLine();
             while (s != null) {
                 out(s);
@@ -63,23 +66,18 @@ public class Main {
 
     private static void printLicense() {
         try {
-            InputStream is = Main.class.getResourceAsStream("/LICENSE");
-            BufferedReader br = new BufferedReader(
-                    new InputStreamReader(is, Charsets.UTF_8));
-            String s = br.readLine();
-            while (s != null) {
-                out(s);
-                s = br.readLine();
+            List<String> lines =
+                    Resources.readLines(Resources.getResource("/LICENSE"), Charsets.UTF_8);
+            for (String l : lines) {
+                out(l);
             }
-            br.close();
         } catch (IOException err) {
             err(err);
         }
     }
 
     private static String getVersion() {
-        return
-                Package.getPackage("com.madvay.tools.android.perf.apat").getSpecificationVersion();
+        return Package.getPackage("com.madvay.tools.android.perf.apat").getSpecificationVersion();
     }
 
     private static void printVersion() {
@@ -87,8 +85,7 @@ public class Main {
         out("---------------------------------------------------------------");
         try {
             InputStream is = Main.class.getResourceAsStream("/NOTICE");
-            BufferedReader br = new BufferedReader(
-                    new InputStreamReader(is, Charsets.UTF_8));
+            BufferedReader br = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8));
             String s = br.readLine();
             while (s != null) {
                 out(s);
@@ -142,7 +139,8 @@ public class Main {
                 AllocationsParser.process(cmd.flags.get(1));
                 break;
             default:
-                throw new IllegalArgumentException("Unknown allocs subcommand: " + cmd.flags.get(0));
+                throw new IllegalArgumentException(
+                        "Unknown allocs subcommand: " + cmd.flags.get(0));
         }
     }
 }
