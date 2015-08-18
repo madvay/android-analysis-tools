@@ -3,7 +3,7 @@ Tools to analyze performance of Android applications.
 
 ## Usage
 ```
-android-analysis-tools - https://github.com/madvay/android-analysis-tools
+android-analysis-tools - https://madvay.com/source/apat
 Tools to analyze performance of Android applications.
 
 Usage:
@@ -20,7 +20,7 @@ Available commands:
 ## License
 See the [LICENSE](LICENSE) and the [NOTICE](NOTICE) files.
 ```
-android-analysis-tools - https://github.com/madvay/android-analysis-tools
+android-analysis-tools - https://madvay.com/source/apat
 Tools to analyze performance of Android applications.
 
 Copyright (c) 2015 by Advay Mengle.
