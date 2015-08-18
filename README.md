@@ -19,7 +19,11 @@ Available commands:
  version            - Prints version and copyright notice.
  license            - Prints the full LICENSE file.
  allocs             - Allocation tracking analysis:
-    parse <file>        - Parses a DDMS .alloc file
+    parse <file>        - Analyze a DDMS .alloc file
+      --sort=<spec>         - Sorts the rows, where spec is a comma-separated
+                              list of columns.  A column prefixed with a hyphen
+                              is sorted in descending order (otherwise ascending order).
+                              Ex: --sort=thread,-size (asc. by thread, then desc. by size)
 ```
 
 ## Building from source

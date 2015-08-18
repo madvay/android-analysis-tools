@@ -159,18 +159,17 @@ public class Main {
     }
 
     private static void runAllocs(CommandLine cmd) {
-        switch (cmd.flags.get(0)) {
+        switch (cmd.args.get(0)) {
             case "parse": {
-                AllocTable table = new AllocTable(AllocationsParser.parse(cmd.flags.get(1)));
-                if (cmd.flags.size() >= 3) {
-                    table.sortOn(Splitter.on(',').splitToList(cmd.flags.get(2)));
+                AllocTable table = new AllocTable(AllocationsParser.parse(cmd.args.get(1)));
+                if (cmd.flags.containsKey("sort")) {
+                    table.sortOn(Splitter.on(',').splitToList(cmd.flags.get("sort")));
                 }
                 out(new TableFormatter<>(new PrettyOutput()).format(table));
                 break;
             }
             default:
-                throw new IllegalArgumentException(
-                        "Unknown allocs subcommand: " + cmd.flags.get(0));
+                throw new IllegalArgumentException("Unknown allocs subcommand: " + cmd.args.get(0));
         }
     }
 }

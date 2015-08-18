@@ -46,7 +46,7 @@ public class AllocRow extends Row {
     static final class Adapter extends RowAdapter<AllocRow> {
 
         Adapter() {
-            super("id", "allocatedClass", "bytes", "thread", "stackTrace");
+            super("id", "allocatedClass", "size", "thread", "stackTrace");
         }
 
         @Override
@@ -56,7 +56,7 @@ public class AllocRow extends Row {
                     return row.id;
                 case "allocatedClass":
                     return row.allocatedClass;
-                case "bytes":
+                case "size":
                     return row.bytes;
                 case "thread":
                     return row.thread;
