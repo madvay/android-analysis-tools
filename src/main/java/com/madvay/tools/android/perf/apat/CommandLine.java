@@ -15,5 +15,20 @@
  *
  */
 
-rootProject.name = 'apat'
+package com.madvay.tools.android.perf.apat;
 
+/**
+ *
+ */
+public class CommandLine {
+
+    public final String command;
+
+    public CommandLine(String[] argv) {
+        if (argv.length < 1) {
+            throw new IllegalArgumentException("1st argument must be name of a command.");
+        }
+        command = argv[0];
+    }
+
+}
