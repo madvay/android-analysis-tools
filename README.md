@@ -7,6 +7,8 @@ Tools to analyze performance of Android applications.
 3.  The `./apat` script can now be run per the Usage section.
 
 ## Usage
+<!-- The content between the ```hashes``` will also be displayed
+     as the usage notice by the Java binary. -->
 ```
 android-analysis-tools - https://madvay.com/source/apat
 Tools to analyze performance of Android applications.
