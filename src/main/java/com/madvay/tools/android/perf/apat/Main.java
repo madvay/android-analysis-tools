@@ -17,6 +17,7 @@
 
 package com.madvay.tools.android.perf.apat;
 
+import com.google.common.base.Charsets;
 import com.madvay.tools.android.perf.allocs.AllocationsParser;
 
 import java.io.BufferedReader;
@@ -60,6 +61,22 @@ public class Main {
         }
     }
 
+    private static void printLicense() {
+        try {
+            InputStream is = Main.class.getResourceAsStream("/LICENSE");
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader(is, Charsets.UTF_8));
+            String s = br.readLine();
+            while (s != null) {
+                out(s);
+                s = br.readLine();
+            }
+            br.close();
+        } catch (IOException err) {
+            err(err);
+        }
+    }
+
     private static String getVersion() {
         return
                 Package.getPackage("com.madvay.tools.android.perf.apat").getSpecificationVersion();
@@ -71,7 +88,7 @@ public class Main {
         try {
             InputStream is = Main.class.getResourceAsStream("/NOTICE");
             BufferedReader br = new BufferedReader(
-                    new InputStreamReader(is, Charset.forName("UTF-8")));
+                    new InputStreamReader(is, Charsets.UTF_8));
             String s = br.readLine();
             while (s != null) {
                 out(s);
@@ -101,6 +118,9 @@ public class Main {
                     break;
                 case "version":
                     printVersion();
+                    break;
+                case "license":
+                    printLicense();
                     break;
                 case "allocs":
                     runAllocs(cmd);

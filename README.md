@@ -10,10 +10,11 @@ Usage:
 apat <command> <options>
 
 Available commands:
- help            - Prints this usage message.
- version         - Prints version and copyright info.
- allocs          - Allocation tracking analysis:
-    parse <file>      - Parses a DDMS .alloc file
+ help               - Prints this usage message.
+ version            - Prints version and copyright notice.
+ license            - Prints the full LICENSE file.
+ allocs             - Allocation tracking analysis:
+    parse <file>        - Parses a DDMS .alloc file
 ```
 (see [src/main/resources/README](src/main/resources/README) for latest)
 
