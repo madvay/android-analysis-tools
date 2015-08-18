@@ -147,7 +147,7 @@ public class AllocationsParser {
    *   As with other DDM traffic, strings are sent as a 4-byte length
    *   followed by UTF-16 data.
   */
-  
+
   public static void parse( ByteBuffer data) {
     int messageHdrLen, entryHdrLen, stackFrameLen;
     int numEntries, offsetToStrings;
@@ -242,14 +242,9 @@ public class AllocationsParser {
 
   }
 
-  public static void main(String[] args) {
-    if (args.length != 1) {
-      System.err.println("Provide path to .alloc file");
-      return;
-    }
-
+  public static void process(String allocFilePath) {
     try {
-      ByteBuffer buf = mapFile(new File(args[0]), 0, ByteOrder.BIG_ENDIAN);
+      ByteBuffer buf = mapFile(new File(allocFilePath), 0, ByteOrder.BIG_ENDIAN);
       parse(buf);
     }
     catch (IOException e) {

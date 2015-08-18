@@ -17,6 +17,8 @@
 
 package com.madvay.tools.android.perf.apat;
 
+import com.madvay.tools.android.perf.allocs.AllocationsParser;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,6 +54,8 @@ public class Main {
         out("Available commands:");
         out(" help            - Prints this usage message.");
         out(" version         - Prints version and copyright info.");
+        out(" allocs          - Allocation tracking analysis:");
+        out("    parse <file>      - Parses a DDMS .alloc file");
     }
 
     private static String getVersion() {
@@ -88,14 +92,35 @@ public class Main {
             return;
         }
 
-        switch (cmd.command) {
-            case "help":
-                printUsage();
-                break;
-            case "version":
-                printVersion();
-                break;
+        try {
+            switch (cmd.command) {
+                case "help":
+                    printUsage();
+                    break;
+                case "version":
+                    printVersion();
+                    break;
+                case "allocs":
+                    runAllocs(cmd);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown command: " + cmd.command);
+            }
+        } catch (Exception e) {
+            err(e.getMessage());
+            printUsage();
+            System.exit(-1);
         }
         return;
+    }
+
+    private static void runAllocs(CommandLine cmd) {
+        switch (cmd.flags.get(0)) {
+            case "parse":
+                AllocationsParser.process(cmd.flags.get(1));
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown allocs subcommand: " + cmd.flags.get(0));
+        }
     }
 }

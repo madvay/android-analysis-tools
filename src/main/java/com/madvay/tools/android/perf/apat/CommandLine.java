@@ -17,6 +17,9 @@
 
 package com.madvay.tools.android.perf.apat;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  */
@@ -24,11 +27,18 @@ public class CommandLine {
 
     public final String command;
 
+    public final List<String> flags;
+
     public CommandLine(String[] argv) {
         if (argv.length < 1) {
             throw new IllegalArgumentException("1st argument must be name of a command.");
         }
         command = argv[0];
+
+        flags = new ArrayList<>();
+        for (int i = 1; i < argv.length; i++) {
+            flags.add(argv[i]);
+        }
     }
 
 }
