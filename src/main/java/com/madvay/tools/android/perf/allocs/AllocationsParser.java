@@ -1,4 +1,7 @@
 /*
+ * Copyright (c) 2015 by Advay Mengle.
+ *
+ * A modified version of AllocationsParser.java.  Original:
  * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package com.madvay.tools.android.perf.allocs;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
