@@ -55,4 +55,7 @@ public class CommandLine {
         }
     }
 
+    public String getFlagWithDefault(String name, String def) {
+        return !flags.containsKey(name) ? def : flags.get(name);
+    }
 }

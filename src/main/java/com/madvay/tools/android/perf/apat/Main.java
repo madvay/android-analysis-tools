@@ -17,12 +17,15 @@
 
 package com.madvay.tools.android.perf.apat;
 
+import com.madvay.tools.android.perf.allocs.AllocRow;
 import com.madvay.tools.android.perf.allocs.AllocTable;
 import com.madvay.tools.android.perf.allocs.AllocationsParser;
 import com.madvay.tools.android.perf.allocs.PrettyOutput;
+import com.madvay.tools.android.perf.common.CsvOutput;
 import com.madvay.tools.android.perf.common.TableFormatter;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.io.Resources;
 
@@ -165,7 +168,18 @@ public class Main {
                 if (cmd.flags.containsKey("sort")) {
                     table.sortOn(Splitter.on(',').splitToList(cmd.flags.get("sort")));
                 }
-                out(new TableFormatter<>(new PrettyOutput()).format(table));
+                String fmt = cmd.getFlagWithDefault("format", "pretty");
+                Function<? super AllocRow, String> formatter;
+                switch (fmt) {
+                    case "csv":
+                        formatter = new CsvOutput<>(table.getAdapter().columns, table.getAdapter());
+                        break;
+                    case "pretty":
+                    default:
+                        formatter = new PrettyOutput();
+                        break;
+                }
+                out(new TableFormatter<>(formatter).format(table));
                 break;
             }
             default:

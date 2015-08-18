@@ -26,6 +26,8 @@ Available commands:
                               ascending order).
                               Ex: --sort=thread,-size (asc. by thread, then
                               desc. by size)
+      --format=csv|pretty   - Selects the output format.
+                              Default: pretty
 ```
 
 ## Building from source
