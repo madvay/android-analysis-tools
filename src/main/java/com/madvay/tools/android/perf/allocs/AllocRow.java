@@ -48,7 +48,7 @@ public class AllocRow extends Row {
         Adapter() {
             super(ImmutableList.of("id", "allocated", "size", "thread", "stackTrace"), ImmutableList
                             .of(CoerceType.NUMERIC, CoerceType.TEXT, CoerceType.NUMERIC,
-                                    CoerceType.TEXT));
+                                    CoerceType.NUMERIC, CoerceType.TEXT));
         }
 
         @Override
