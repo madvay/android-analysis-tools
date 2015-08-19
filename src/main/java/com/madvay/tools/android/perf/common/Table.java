@@ -17,12 +17,14 @@
 
 package com.madvay.tools.android.perf.common;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
+import com.google.common.collect.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -66,6 +68,72 @@ public abstract class Table<T extends Row> {
     public void matching(FilterSpec spec) {
         final FilterSpec filterSpec = spec;
         rows = Lists.newArrayList(Collections2.filter(rows, new RowFilter(filterSpec)));
+    }
+
+    public enum AggregationType {
+        /** The number of rows */
+        COUNT,
+        /** The number of rows with unique values for this column */
+        UNIQUE,
+        /** The sum/concatenation of values in this column. */
+        SUM
+    }
+
+    public Table<AggregateRow> groupAndAggregate(final String groupByColumn,
+                                                 final String weightColumn,
+                                                 final AggregationType aggregationType) {
+        final RowAdapter<T> adapter = getAdapter();
+        final boolean groupNumeric = adapter.types.get(adapter.columns.indexOf(groupByColumn)) ==
+                                     RowAdapter.CoerceType.NUMERIC;
+        boolean weightNumeric = adapter.types.get(adapter.columns.indexOf(weightColumn)) ==
+                                RowAdapter.CoerceType.NUMERIC;
+        ImmutableListMultimap<Object, T> indexed = Multimaps.index(rows, new Function<T, Object>() {
+            @Override
+            public Object apply(T input) {
+                return adapter.get(input, groupByColumn).toString();
+            }
+        });
+        Map<Object, Long> map = Maps.transformEntries(Multimaps.asMap(indexed),
+                new Maps.EntryTransformer<Object, List<T>, Long>() {
+                    @Override
+                    public Long transformEntry(Object key, List<T> value) {
+                        switch (aggregationType) {
+                            case COUNT:
+                                return (long) value.size();
+                            case SUM: {
+                                long l = 0;
+                                for (T t : value) {
+                                    l += Long.parseLong(adapter.get(t, weightColumn).toString());
+                                }
+                                return l;
+                            }
+                            case UNIQUE: {
+                                Set<String> set = new HashSet<>();
+                                for (T t : value) {
+                                    set.add(adapter.get(t, weightColumn).toString());
+                                }
+                                return (long) set.size();
+                            }
+                        }
+                        throw new IllegalArgumentException();
+                    }
+                });
+        List<AggregateRow> newRows = Lists.newArrayList(Iterables
+                .transform(map.entrySet(), new Function<Map.Entry<Object, Long>, AggregateRow>() {
+                    @Override
+                    public AggregateRow apply(Map.Entry<Object, Long> input) {
+                        return new AggregateRow(input.getValue(), input.getKey());
+                    }
+                }));
+        Table<AggregateRow> ret = new Table<AggregateRow>(newRows) {
+            final RowAdapter<AggregateRow> adap = new AggregateRow.Adapter(groupNumeric);
+
+            @Override
+            public RowAdapter<AggregateRow> getAdapter() {
+                return adap;
+            }
+        };
+        return ret;
     }
 
     private final class ColumnOrdering extends Ordering<T> {

@@ -63,9 +63,10 @@ public class AllocRow extends TraceTransformableRow {
     static final class Adapter extends RowAdapter<AllocRow> {
 
         Adapter() {
-            super(ImmutableList.of("id", "allocated", "size", "thread", "stackTrace", "allocator"),
-                    ImmutableList.of(CoerceType.NUMERIC, CoerceType.TEXT, CoerceType.NUMERIC,
-                            CoerceType.NUMERIC, CoerceType.TEXT, CoerceType.TEXT));
+            super(ImmutableList.of("id", "allocated", "size", "thread", "stackTrace", "allocator",
+                    "allocatorClass", "allocatorMethod"), ImmutableList
+                    .of(CoerceType.NUMERIC, CoerceType.TEXT, CoerceType.NUMERIC, CoerceType.NUMERIC,
+                            CoerceType.TEXT, CoerceType.TEXT, CoerceType.TEXT, CoerceType.TEXT));
         }
 
         @Override
@@ -83,6 +84,11 @@ public class AllocRow extends TraceTransformableRow {
                     return row.stackTrace;
                 case "allocator":
                     return row.allocator == null ? "{none}" : row.allocator;
+                case "allocatorClass":
+                    return row.allocator == null ? "{none}" : row.allocator.getClassName();
+                case "allocatorMethod":
+                    return row.allocator == null ? "{none}" :
+                           (row.allocator.getClassName() + "." + row.allocator.getMethodName());
                 default:
                     throw new IllegalArgumentException();
             }

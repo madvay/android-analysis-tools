@@ -25,6 +25,7 @@ import com.madvay.tools.android.perf.common.*;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 
@@ -170,25 +171,36 @@ public class Main {
         tableRowsSort(cmd, table);
     }
 
-    private static <T extends TraceTransformableRow> void  //
+    private static <T extends TraceTransformableRow> Table<AggregateRow>  //
     runAllocsTopProcessing(CommandLine cmd, TraceTransformableTable<T> table) {
         tableTraceTransform(cmd, table);
         tableTraceSplit(cmd, table);
         tableRowsFilter(cmd, table);
-        tableRowsSort(cmd, table);
+        String groupBy = cmd.getUnaryFlagWithDefault("groupBy", "allocatorMethod");
+        String weight = cmd.getUnaryFlagWithDefault("weight", "size");
+
+        Table<AggregateRow> agg = table.groupAndAggregate(groupBy, weight,
+                weight.equals("size") ? Table.AggregationType.SUM :
+                weight.equals("id") ? Table.AggregationType.COUNT : Table.AggregationType.UNIQUE);
+        tableRowsSort(cmd, agg, ImmutableList.of("-weight", "group"));
+        return agg;
     }
 
-    private static <T extends TraceTransformableRow> void tableRowsSort(CommandLine cmd,
-                                                                        TraceTransformableTable<T> table) {
+    private static <T extends Row> void tableRowsSort(CommandLine cmd, Table<T> table) {
+        tableRowsSort(cmd, table, ImmutableList.<String>of());
+    }
+
+    private static <T extends Row> void tableRowsSort(CommandLine cmd, Table<T> table,
+                                                      List<String> defaultSort) {
         List<String> sort = cmd.getMultiFlagWithInternalLists("sort");
-        out(sort.toString());
         if (!sort.isEmpty()) {
             table.sortOn(sort);
+        } else if (!defaultSort.isEmpty()) {
+            table.sortOn(defaultSort);
         }
     }
 
-    private static <T extends TraceTransformableRow> void tableRowsFilter(CommandLine cmd,
-                                                                          TraceTransformableTable<T> table) {
+    private static <T extends Row> void tableRowsFilter(CommandLine cmd, Table<T> table) {
         for (String key : table.getAdapter().columns) {
             for (FilterSpec spec : cmd.getFilterSpecsFlag(key)) {
                 table.matching(spec);
@@ -234,12 +246,13 @@ public class Main {
     }
 
     private static void runAllocsTop(CommandLine cmd, AllocTable table) {
-        runAllocsTopProcessing(cmd, table);
-        TableFormatter<AllocRow> fmt =
-                pickFormatter(cmd, ImmutableMap.<String, Function<? super AllocRow, String>>of(  //
-                        "csv", new CsvOutput<>(table.getAdapter().columns, table.getAdapter()),  //
-                        "pretty", new PrettyAllocRowOutput()));
-        out(fmt.format(table));
+        Table<AggregateRow> aggTable = runAllocsTopProcessing(cmd, table);
+        TableFormatter<AggregateRow> fmt = pickFormatter(cmd,
+                ImmutableMap.<String, Function<? super AggregateRow, String>>of(  //
+                        "csv",
+                        new CsvOutput<>(aggTable.getAdapter().columns, aggTable.getAdapter()),  //
+                        "pretty", new PrettyAggregateRowOutput(aggTable)));
+        out(fmt.format(aggTable));
     }
 
     private static void runAllocsList(CommandLine cmd, AllocTable table) {

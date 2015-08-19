@@ -131,6 +131,13 @@ ROW MATCHING FILTERS:
 
  --allocator=<filter>  - STE at the top of the stack trace
 
+ --allocatorClass=<filter>
+                       - Class of STE at the top of the stack trace
+
+ --allocatorMethod=<filter>
+                       - "class.method" of STE at the top of the
+                         stack trace
+
  Matches attributes via a filter spec,
  [<comparison>:]<rhs> where comparison is one of:
      eq  - lhs == rhs, default comparison when none specified
@@ -152,19 +159,35 @@ ROW MATCHING FILTERS:
  matches allocations on thread 12.
 
 
+AGGREGATION (only for [allocs top]):
+
+ --weight=<column>     - Choose between id (count), size (sum), or another
+                         column, which will be counted by its unique values.
+                         Default: size (sum)
+
+ --groupBy=<column>    - Specifies the column to group by, defaults to
+                         allocatorMethod.
+
+
 OTHER FLAGS:
 
  --splitByTrace=true   - Splits a row with multiple trace elements [A,B,C]
                          into three rows, each one a single trace element
-                         [A], [B], and [C].
+                         [A], [B], and [C].  This is particularly useful
+                         to hold callers responsible for all their callees'
+                         allocations in [allocs top] mode.
                          Default: false
 
  --sort=<spec>         - Sorts the rows, where spec is a comma-separated
                          list of columns.  A column prefixed with a hyphen
-                         is sorted in descending order (otherwise
-                         ascending order).
+                         is sorted in descending order, otherwise in
+                         ascending order.
                          Ex: --sort=thread,-size (asc. by thread, then
                          desc. by size)
+                         For [allocs top], defaults to {-weight,group}.
+                         For [allocs list], no default.  You can use any
+                         of the columns named above in 'row matching
+                         filters'.
 
  --format=csv|pretty   - Selects the output format.
                          Default: pretty
@@ -199,6 +222,27 @@ apat allocs list file.alloc --sort=thread,id --format=pretty \
   showing the ultimate allocation site as the last responsible method
   under the com.example.** package, and excluding all allocations that
   did not involve the com.example package.
+
+
+apat allocs top file.alloc --format=pretty \
+    --traceTransform=pruneAbove:underPackage:com.example \
+    --groupBy=allocatorMethod --thread=17 \
+    --splitByTrace=true
+
+  Displays the top methods in com.example both directly and indirectly
+  allocating memory on thread 17.  Memory not indirectly chargeable to a
+  com.example method will show up under {none}.  --splitByTrace=true causes
+  every method in the chain to have callees' memory charged to the caller
+  as well.
+
+
+apat allocs top file.alloc --format=pretty \
+    --traceTransform=prune:underPackage:java \
+    --traceTransform=prune:underPackage:javax \
+    --groupBy=allocatorClass
+
+  Displays the top classes outside of java/javax most closely responsible
+  for directly allocating memory.
 
 
 apat allocs list file.alloc --sort=thread,id --format=pretty \
