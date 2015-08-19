@@ -17,8 +17,8 @@
 
 package com.madvay.tools.android.perf.allocs;
 
-import com.madvay.tools.android.perf.common.Row;
 import com.madvay.tools.android.perf.common.RowAdapter;
+import com.madvay.tools.android.perf.common.TraceTransformableRow;
 
 import com.google.common.collect.ImmutableList;
 
@@ -27,7 +27,7 @@ import java.util.List;
 /**
  *
  */
-public class AllocRow extends Row {
+public class AllocRow extends TraceTransformableRow {
     public final int id;
     public final String allocatedClass;
     public final int bytes;
@@ -43,12 +43,26 @@ public class AllocRow extends Row {
         this.stackTrace = ImmutableList.copyOf(stackTrace);
     }
 
+    public AllocRow(int id, String allocatedClass, int bytes, int thread,
+                    List<StackTraceElement> stackTrace) {
+        this.id = id;
+        this.allocatedClass = allocatedClass;
+        this.bytes = bytes;
+        this.thread = thread;
+        this.stackTrace = ImmutableList.copyOf(stackTrace);
+    }
+
+    @Override
+    public List<StackTraceElement> getTransformableTrace() {
+        return stackTrace;
+    }
+
     static final class Adapter extends RowAdapter<AllocRow> {
 
         Adapter() {
             super(ImmutableList.of("id", "allocated", "size", "thread", "stackTrace"), ImmutableList
-                            .of(CoerceType.NUMERIC, CoerceType.TEXT, CoerceType.NUMERIC,
-                                    CoerceType.NUMERIC, CoerceType.TEXT));
+                    .of(CoerceType.NUMERIC, CoerceType.TEXT, CoerceType.NUMERIC, CoerceType.NUMERIC,
+                            CoerceType.TEXT));
         }
 
         @Override

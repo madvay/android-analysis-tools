@@ -18,10 +18,10 @@
 package com.madvay.tools.android.perf.apat;
 
 import com.madvay.tools.android.perf.common.FilterSpec;
+import com.madvay.tools.android.perf.common.StePredicates;
+import com.madvay.tools.android.perf.common.TraceTransformers;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
+import com.google.common.base.*;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Lists;
@@ -42,7 +42,8 @@ public class CommandLine {
     public final Multimap<String, String> flags;
 
     private static final Splitter KV_SPLIT = Splitter.on('=').limit(2);
-    private static final Splitter FILTER_SPLIT = Splitter.on(':').limit(2);
+    private static final Splitter SPEC_SPLIT = Splitter.on(':').limit(2);
+    private static final Splitter CONJ_SPLIT = Splitter.on(';');
 
     public CommandLine(String[] argv) {
         if (argv.length < 1) {
@@ -86,7 +87,7 @@ public class CommandLine {
                 if (input == null || input.isEmpty()) {
                     return null;
                 }
-                List<String> spl = FILTER_SPLIT.splitToList(input);
+                List<String> spl = SPEC_SPLIT.splitToList(input);
                 if (spl.size() == 2) {
                     FilterSpec.FilterType t = filterTypeByPrefix(spl.get(0));
                     return new FilterSpec(column, t, spl.get(1));
@@ -98,6 +99,83 @@ public class CommandLine {
                 }
             }
         });
+    }
+
+    public List<TraceTransformers.TT> getTraceTransformsFlag(final String name) {
+        List<String> flagStr = getMultiFlag(name);
+        return Lists.transform(flagStr, new Function<String, TraceTransformers.TT>() {
+            @Override
+            public TraceTransformers.TT apply(String input) {
+                if (input == null || input.isEmpty()) {
+                    return null;
+                }
+                return parseTraceTransform(input);
+            }
+        });
+    }
+
+    private static Predicate<StackTraceElement> parseSteP(String s) {
+        return Predicates.and(Lists.transform(CONJ_SPLIT.splitToList(s),
+                new Function<String, Predicate<StackTraceElement>>() {
+                    @Override
+                    public Predicate<StackTraceElement> apply(String input) {
+                        return parseStePOperator(input);
+                    }
+                }));
+    }
+
+    private static Predicate<StackTraceElement> parseStePOperator(String s) {
+        List<String> spl = SPEC_SPLIT.splitToList(s);
+        if (spl.size() == 1) {
+            return StePredicates.contains(spl.get(0));
+        }
+        switch (spl.get(0)) {
+            case "underPackage":
+                return StePredicates.underPackage(spl.get(1));
+            case "inPackage":
+                return StePredicates.inPackage(spl.get(1));
+            case "class":
+            case "classEq":
+                return StePredicates.classEq(spl.get(1));
+            case "classRe":
+                return StePredicates.classRe(spl.get(1));
+            case "method":
+            case "methodEq":
+                return StePredicates.methodEq(spl.get(1));
+            case "methodRe":
+                return StePredicates.methodRe(spl.get(1));
+            case "site":
+            case "siteEq":
+                return StePredicates.siteEq(spl.get(1));
+            case "siteRe":
+                return StePredicates.siteRe(spl.get(1));
+            case "contains":
+                return StePredicates.contains(spl.get(1));
+            default:
+                throw new IllegalArgumentException("Unknown element spec: " + s);
+        }
+    }
+
+    private static TraceTransformers.TT parseTraceTransform(String s) {
+        List<String> spl = SPEC_SPLIT.splitToList(s);
+        switch (spl.get(0)) {
+            case "pruneRecursion":
+                return TraceTransformers.pruneRecursion();
+            case "prune":
+                return TraceTransformers.prune(parseSteP(spl.get(1)));
+            case "keep":
+                return TraceTransformers.keep(parseSteP(spl.get(1)));
+            case "pruneAbove":
+                return TraceTransformers.pruneAbove(parseSteP(spl.get(1)));
+            case "pruneBelow":
+                return TraceTransformers.pruneBelow(parseSteP(spl.get(1)));
+            case "keepAbove":
+                return TraceTransformers.keepAbove(parseSteP(spl.get(1)));
+            case "keepBelow":
+                return TraceTransformers.keepBelow(parseSteP(spl.get(1)));
+            default:
+                throw new IllegalArgumentException("Unknown trace transform: " + s);
+        }
     }
 
     private static FilterSpec.FilterType filterTypeByPrefix(String pr) {

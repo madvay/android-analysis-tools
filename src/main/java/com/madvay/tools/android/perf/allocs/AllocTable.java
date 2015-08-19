@@ -18,14 +18,14 @@
 package com.madvay.tools.android.perf.allocs;
 
 import com.madvay.tools.android.perf.common.RowAdapter;
-import com.madvay.tools.android.perf.common.Table;
+import com.madvay.tools.android.perf.common.TraceTransformableTable;
 
 import java.util.List;
 
 /**
  *
  */
-public class AllocTable extends Table<AllocRow> {
+public class AllocTable extends TraceTransformableTable<AllocRow> {
 
     private static final RowAdapter<AllocRow> ADAPTER = new AllocRow.Adapter();
 
@@ -36,5 +36,10 @@ public class AllocTable extends Table<AllocRow> {
     @Override
     public RowAdapter<AllocRow> getAdapter() {
         return ADAPTER;
+    }
+
+    @Override
+    protected AllocRow newRowWithTrace(AllocRow input, List<StackTraceElement> trace) {
+        return new AllocRow(input.id, input.allocatedClass, input.bytes, input.thread, trace);
     }
 }

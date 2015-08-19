@@ -161,7 +161,13 @@ public class Main {
         return;
     }
 
-    private static <T extends Row> void processTable(CommandLine cmd, Table<T> table) {
+    private static <T extends TraceTransformableRow> void  //
+    processTable(CommandLine cmd, TraceTransformableTable<T> table) {
+        // Transform
+        for (TraceTransformers.TT tt : cmd.getTraceTransformsFlag("traceTransform")) {
+            table.transformTraces(tt);
+        }
+
         // Filter
         for (String key : table.getAdapter().columns) {
             for (FilterSpec spec : cmd.getFilterSpecsFlag(key)) {
