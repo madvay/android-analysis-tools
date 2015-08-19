@@ -23,7 +23,17 @@ task wrapper(type: Wrapper) {
     distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.sf.proguard:proguard-gradle:5.2.1'
+    }
+}
+
 apply plugin: 'java'
+apply plugin: 'distribution'
 apply plugin: 'application'
 
 mainClassName = 'com.madvay.tools.android.perf.apat.Main'
@@ -40,6 +50,47 @@ dependencies {
         exclude group: 'com.android.tools'
     }
 }
+
+
+task deleteProguardDestDir << {
+    project.file('build/distributions-mini/lib').deleteDir()
+}
+task proguardPreDist(type: proguard.gradle.ProGuardTask) {
+    dependsOn 'deleteProguardDestDir'
+    injars jar.archivePath
+    injars project.configurations.runtime
+    configuration file('proguard.pro')
+    dependsOn 'jar'
+    outjars 'build/distributions-mini/lib/'
+    libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
+}
+
+tasks.remove(distTar)
+tasks.remove(distZip)
+tasks.remove(installDist)
+tasks.remove(assembleDist)
+tasks.remove(installApp)
+
+distributions {
+    remove(getByName('main'))
+    mini {
+        baseName = "${project.name}"
+        contents {
+            into('lib') {
+                from(proguardPreDist)
+            }
+            from(project.file("src/dist"))
+            into("bin") {
+                from(startScripts)
+                fileMode = 0755
+            }
+        }
+    }
+}
+
+installMiniDist.dependsOn(proguardPreDist)
+miniDistTar.dependsOn(proguardPreDist)
+miniDistZip.dependsOn(proguardPreDist)
 
 jar {
     manifest {
@@ -58,3 +109,4 @@ run {
         args project.apatArgs.split(' ')
     }
 }
+
