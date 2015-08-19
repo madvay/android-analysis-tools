@@ -203,13 +203,15 @@ apat allocs list file.alloc --sort=thread,id --format=pretty \
     --traceTransform=pruneAbove:underPackage:com.example,methodEq:\<init\> \
     --traceTransform=prune:underPackage:java \
     --traceTransform=prune:underPackage:javax \
-    --stackTrace=re:.\*com\\.example\\..\*
+    --stackTrace=re:.\*com\\.example\\..\* \
+    --allocated=ne:java.lang.String
 
   Pretty-prints in order of allocation but separated by thread,
   showing the ultimate allocation site as the last responsible constructor
   under the com.example.** package, and excluding all allocations that
   did not involve the com.example package, and ignoring all calls
-  within the java.** and javax.** packages.
+  within the java.** and javax.** packages, and excluding allocations of
+  Strings.
 
   This example can also be run as:
 
@@ -219,11 +221,14 @@ apat allocs list file.alloc --config=file.cfg
 
 --sort=thread,id
 --format=pretty
+
 # Hold final constructor under com.example.** responsible.
 --traceTransform=pruneAbove:underPackage:com.example,methodEq:<init>
+
 --traceTransform=prune:underPackage:java
 --traceTransform=prune:underPackage:javax
 --stackTrace=re:.*com\.example\..*
+--allocated=ne:java.lang.String
 
   Note that characters no longer need to be shell-escaped, and comments
   are allowed.
