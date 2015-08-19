@@ -16,7 +16,7 @@
  */
 
 group 'com.madvay.tools.android'
-version '0.1.0'
+version '0.2.0'
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.6'
