@@ -11,23 +11,50 @@ Run the `bin/apat` script per the Usage section.
 android-analysis-tools - https://madvay.com/source/apat
 Tools to analyze performance of Android applications.
 
-Usage:
+USAGE
 apat <command> <options>
 
-Available commands:
+AVAILABLE COMMANDS
  help               - Prints this usage message.
  version            - Prints version and copyright notice.
  license            - Prints the full LICENSE file.
  allocs             - Allocation tracking analysis:
     parse <file>        - Analyze a DDMS .alloc file
-      --sort=<spec>         - Sorts the rows, where spec is a comma-separated
-                              list of columns.  A column prefixed with a hyphen
-                              is sorted in descending order (otherwise
-                              ascending order).
-                              Ex: --sort=thread,-size (asc. by thread, then
-                              desc. by size)
-      --format=csv|pretty   - Selects the output format.
-                              Default: pretty
+
+COMMON FLAGS
+Filters:
+ --id=<filter>         - Allocation id
+ --allocated=<filter>  - Allocated class name
+ --size=<filter>       - Allocation size in bytes
+ --thread=<filter>     - Allocating thread id
+ --stackTrace=<filter> - Joined allocation site stack trace
+
+ Match attributes via a filter spec,
+ <comparison>:<rhs> where comparison is one of:
+     eq - lhs == rhs
+     ne - lhs != rhs
+     lt - lhs <  rhs
+     le - lhs <= rhs
+     gt - lhs >  rhs
+     ge - lhs >= rhs
+     re - lhs matches the regular expression rhs
+ Repeating a flag creates a conjunction filter.
+
+ Ex: --thread=ne:14 --size=gt:16 --size=le:128
+ matches allocations on thread 14, with a size greater
+ than 16 bytes and less than or equal to 128 bytes.
+
+
+Other flags:
+ --sort=<spec>         - Sorts the rows, where spec is a comma-separated
+                         list of columns.  A column prefixed with a hyphen
+                         is sorted in descending order (otherwise
+                         ascending order).
+                         Ex: --sort=thread,-size (asc. by thread, then
+                         desc. by size)
+
+ --format=csv|pretty   - Selects the output format.
+                         Default: pretty
 ```
 
 ## Building from source

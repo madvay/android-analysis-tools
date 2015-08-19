@@ -17,29 +17,29 @@
 
 package com.madvay.tools.android.perf.common;
 
-import com.google.common.collect.ImmutableList;
-
-import java.util.List;
-
 /**
  *
  */
-public abstract class RowAdapter<T extends Row> {
-    public enum CoerceType {
-        TEXT, NUMERIC
+public class FilterSpec {
+    public FilterSpec(String columnName, FilterType filterType, String rhs) {
+        this.columnName = columnName;
+        this.filterType = filterType;
+        this.rhs = rhs;
     }
 
-    public final List<String> columns;
-    public final List<CoerceType> types;
-
-    private RowAdapter() {
-        throw new UnsupportedOperationException();
+    public enum FilterType {
+        EQUALS,
+        NOT_EQUALS,
+        LESS,
+        LEQ,
+        GREATER,
+        GEQ,
+        RE_MATCH,
     }
 
-    protected RowAdapter(List<String> columns, List<CoerceType> types) {
-        this.columns = ImmutableList.copyOf(columns);
-        this.types = ImmutableList.copyOf(types);
-    }
+    public final String columnName;
+    public final FilterType filterType;
+    public final String rhs;
 
-    public abstract Object get(T row, String column);
+
 }

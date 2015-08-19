@@ -17,9 +17,13 @@
 
 package com.madvay.tools.android.perf.common;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -59,6 +63,11 @@ public abstract class Table<T extends Row> {
         rows = order.sortedCopy(rows);
     }
 
+    public void matching(FilterSpec spec) {
+        final FilterSpec filterSpec = spec;
+        rows = Lists.newArrayList(Collections2.filter(rows, new RowFilter(filterSpec)));
+    }
+
     private final class ColumnOrdering extends Ordering<T> {
 
         private final String col;
@@ -72,6 +81,59 @@ public abstract class Table<T extends Row> {
             Comparable l = (Comparable) getAdapter().get(left, col);
             Comparable r = (Comparable) getAdapter().get(right, col);
             return Ordering.natural().compare(l, r);
+        }
+    }
+
+    private final class RowFilter implements Predicate<T> {
+        private final Pattern pat;
+        private final FilterSpec filterSpec;
+
+        public RowFilter(FilterSpec filterSpec) {
+            this.filterSpec = filterSpec;
+            pat = filterSpec.filterType == FilterSpec.FilterType.RE_MATCH ?
+                  Pattern.compile(filterSpec.rhs) : null;
+        }
+
+        @Override
+        public boolean apply(T input) {
+            RowAdapter<T> adapter = getAdapter();
+            Object lhsRaw = adapter.get(input, filterSpec.columnName);
+            String lhsStr = lhsRaw.toString();
+            int i = adapter.columns.indexOf(filterSpec.columnName);
+            switch (adapter.types.get(i)) {
+                case NUMERIC: {
+                    long lhs = Long.parseLong(lhsStr);
+                    long rhs = Long.parseLong(filterSpec.rhs);
+                    long c = Long.compare(lhs, rhs);
+                    return doCompare(lhsStr, c);
+                }
+                case TEXT: {
+                    return doCompare(lhsStr, lhsStr.compareTo(filterSpec.rhs));
+                }
+                default:
+                    throw new IllegalArgumentException("Bad coerceType: " + adapter.types.get(i));
+            }
+        }
+
+        private boolean doCompare(String lhsStr, long c) {
+            switch (filterSpec.filterType) {
+                case GEQ:
+                    return c >= 0;
+                case GREATER:
+                    return c > 0;
+                case LEQ:
+                    return c <= 0;
+                case LESS:
+                    return c < 0;
+                case EQUALS:
+                    return c == 0;
+                case NOT_EQUALS:
+                    return c != 0;
+                case RE_MATCH:
+                    return pat.matcher(lhsStr).matches();
+                default:
+                    throw new IllegalArgumentException("Bad filterType: " + filterSpec.filterType);
+            }
         }
     }
 }

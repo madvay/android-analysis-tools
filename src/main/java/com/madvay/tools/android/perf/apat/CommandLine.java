@@ -17,12 +17,18 @@
 
 package com.madvay.tools.android.perf.apat;
 
+import com.madvay.tools.android.perf.common.FilterSpec;
+
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -33,9 +39,10 @@ public class CommandLine {
 
     public final List<String> args;
 
-    public final Map<String, String> flags;
+    public final Multimap<String, String> flags;
 
     private static final Splitter KV_SPLIT = Splitter.on('=').limit(2);
+    private static final Splitter FILTER_SPLIT = Splitter.on(':').limit(2);
 
     public CommandLine(String[] argv) {
         if (argv.length < 1) {
@@ -44,7 +51,7 @@ public class CommandLine {
         command = argv[0];
 
         args = new ArrayList<>();
-        flags = new HashMap<>();
+        flags = LinkedListMultimap.create();
         for (int i = 1; i < argv.length; i++) {
             if (argv[i].startsWith("--")) {
                 List<String> kv = KV_SPLIT.splitToList(argv[i].substring(2));
@@ -55,7 +62,55 @@ public class CommandLine {
         }
     }
 
-    public String getFlagWithDefault(String name, String def) {
-        return !flags.containsKey(name) ? def : flags.get(name);
+    public String getUnaryFlagWithDefault(String name, String def) {
+        return Iterables.getLast(flags.get(name), def);
+    }
+
+    public String getJoinedListFlagWithDefault(String name, String def) {
+        List<String> multiFlag = getMultiFlag(name);
+        if (multiFlag.isEmpty()) {
+            return def;
+        }
+        return Joiner.on(',').join(multiFlag);
+    }
+
+    public List<String> getMultiFlag(String name) {
+        return Lists.newArrayList(flags.get(name));
+    }
+
+    public List<FilterSpec> getFilterSpecsFlag(final String column) {
+        List<String> flagStr = getMultiFlag(column);
+        return Lists.transform(flagStr, new Function<String, FilterSpec>() {
+            @Override
+            public FilterSpec apply(String input) {
+                if (input == null || input.isEmpty()) {
+                    return null;
+                }
+                List<String> spl = FILTER_SPLIT.splitToList(input);
+                FilterSpec.FilterType t = filterTypeByPrefix(spl.get(0));
+                return new FilterSpec(column, t, spl.get(1));
+            }
+        });
+    }
+
+    private static FilterSpec.FilterType filterTypeByPrefix(String pr) {
+        switch (pr) {
+            case "eq":
+                return FilterSpec.FilterType.EQUALS;
+            case "ne":
+                return FilterSpec.FilterType.NOT_EQUALS;
+            case "lt":
+                return FilterSpec.FilterType.LESS;
+            case "le":
+                return FilterSpec.FilterType.LEQ;
+            case "gt":
+                return FilterSpec.FilterType.GREATER;
+            case "ge":
+                return FilterSpec.FilterType.GEQ;
+            case "re":
+                return FilterSpec.FilterType.RE_MATCH;
+            default:
+                throw new IllegalArgumentException("Bad filter type: " + pr);
+        }
     }
 }

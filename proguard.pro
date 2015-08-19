@@ -22,5 +22,5 @@
     native <methods>;
 }
 
--optimizationpasses 10
--overloadaggressively
+#-optimizationpasses 3
+#-overloadaggressively

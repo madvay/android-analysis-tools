@@ -46,7 +46,9 @@ public class AllocRow extends Row {
     static final class Adapter extends RowAdapter<AllocRow> {
 
         Adapter() {
-            super("id", "allocatedClass", "size", "thread", "stackTrace");
+            super(ImmutableList.of("id", "allocated", "size", "thread", "stackTrace"), ImmutableList
+                            .of(CoerceType.NUMERIC, CoerceType.TEXT, CoerceType.NUMERIC,
+                                    CoerceType.TEXT));
         }
 
         @Override
@@ -54,7 +56,7 @@ public class AllocRow extends Row {
             switch (column) {
                 case "id":
                     return row.id;
-                case "allocatedClass":
+                case "allocated":
                     return row.allocatedClass;
                 case "size":
                     return row.bytes;

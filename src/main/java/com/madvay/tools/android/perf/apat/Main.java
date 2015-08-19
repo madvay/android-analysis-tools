@@ -21,16 +21,16 @@ import com.madvay.tools.android.perf.allocs.AllocRow;
 import com.madvay.tools.android.perf.allocs.AllocTable;
 import com.madvay.tools.android.perf.allocs.AllocationsParserAdapter;
 import com.madvay.tools.android.perf.allocs.PrettyAllocRowOutput;
-import com.madvay.tools.android.perf.common.CsvOutput;
-import com.madvay.tools.android.perf.common.TableFormatter;
+import com.madvay.tools.android.perf.common.*;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
-import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -161,25 +161,39 @@ public class Main {
         return;
     }
 
+    private static <T extends Row> void processTable(CommandLine cmd, Table<T> table) {
+        // Filter
+        for (String key : table.getAdapter().columns) {
+            for (FilterSpec spec : cmd.getFilterSpecsFlag(key)) {
+                table.matching(spec);
+            }
+        }
+
+        // Sort
+        List<String> sort = cmd.getMultiFlag("sort");
+        if (!sort.isEmpty()) {
+            table.sortOn(sort);
+        }
+    }
+
+    private static <T extends Row> TableFormatter<T>  //
+    pickFormatter(CommandLine cmd, Map<String, Function<? super T, String>> formatters) {
+        // Output
+        String fmt = cmd.getUnaryFlagWithDefault("format", "pretty");
+        return new TableFormatter<>(formatters.get(fmt));
+    }
+
     private static void runAllocs(CommandLine cmd) {
         switch (cmd.args.get(0)) {
             case "parse": {
                 AllocTable table = new AllocTable(AllocationsParserAdapter.parse(cmd.args.get(1)));
-                if (cmd.flags.containsKey("sort")) {
-                    table.sortOn(Splitter.on(',').splitToList(cmd.flags.get("sort")));
-                }
-                String fmt = cmd.getFlagWithDefault("format", "pretty");
-                Function<? super AllocRow, String> formatter;
-                switch (fmt) {
-                    case "csv":
-                        formatter = new CsvOutput<>(table.getAdapter().columns, table.getAdapter());
-                        break;
-                    case "pretty":
-                    default:
-                        formatter = new PrettyAllocRowOutput();
-                        break;
-                }
-                out(new TableFormatter<>(formatter).format(table));
+                processTable(cmd, table);
+                TableFormatter<AllocRow> fmt = pickFormatter(cmd,
+                        ImmutableMap.<String, Function<? super AllocRow, String>>of(  //
+                                "csv",
+                                new CsvOutput<>(table.getAdapter().columns, table.getAdapter()),  //
+                                "pretty", new PrettyAllocRowOutput()));
+                out(fmt.format(table));
                 break;
             }
             default:
