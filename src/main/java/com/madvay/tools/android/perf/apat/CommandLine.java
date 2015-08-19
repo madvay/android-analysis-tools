@@ -87,8 +87,15 @@ public class CommandLine {
                     return null;
                 }
                 List<String> spl = FILTER_SPLIT.splitToList(input);
-                FilterSpec.FilterType t = filterTypeByPrefix(spl.get(0));
-                return new FilterSpec(column, t, spl.get(1));
+                if (spl.size() == 2) {
+                    FilterSpec.FilterType t = filterTypeByPrefix(spl.get(0));
+                    return new FilterSpec(column, t, spl.get(1));
+                } else if (spl.size() == 1) {
+                    // Assume equals.
+                    return new FilterSpec(column, FilterSpec.FilterType.EQUALS, spl.get(0));
+                } else {
+                    throw new IllegalArgumentException("Bad filter spec: " + input);
+                }
             }
         });
     }
