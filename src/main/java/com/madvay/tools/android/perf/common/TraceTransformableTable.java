@@ -18,8 +18,10 @@
 package com.madvay.tools.android.perf.common;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,6 +40,20 @@ public abstract class TraceTransformableTable<T extends TraceTransformableRow> e
                 return newRowWithTrace(input, tt.apply(input.getTransformableTrace()));
             }
         }));
+    }
+
+    public void splitTraces() {
+        setRows(Lists.newArrayList(
+                Iterables.concat(Iterables.transform(getRows(), new Function<T, Iterable<T>>() {
+                    @Override
+                    public Iterable<T> apply(T input) {
+                        List<T> ret = new ArrayList<T>();
+                        for (StackTraceElement ste : input.getTransformableTrace()) {
+                            ret.add(newRowWithTrace(input, Lists.newArrayList(ste)));
+                        }
+                        return ret;
+                    }
+                }))));
     }
 
     protected abstract T newRowWithTrace(T input, List<StackTraceElement> trace);

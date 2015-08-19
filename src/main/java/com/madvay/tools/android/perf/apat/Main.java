@@ -169,6 +169,11 @@ public class Main {
             table.transformTraces(tt);
         }
 
+        // Split
+        if (Boolean.parseBoolean(cmd.getUnaryFlagWithDefault("splitByTrace", "false"))) {
+            table.splitTraces();
+        }
+
         // Filter
         for (String key : table.getAdapter().columns) {
             for (FilterSpec spec : cmd.getFilterSpecsFlag(key)) {
