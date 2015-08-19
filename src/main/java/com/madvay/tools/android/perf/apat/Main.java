@@ -177,7 +177,8 @@ public class Main {
         }
 
         // Sort
-        List<String> sort = cmd.getMultiFlag("sort");
+        List<String> sort = cmd.getMultiFlagWithInternalLists("sort");
+        out(sort.toString());
         if (!sort.isEmpty()) {
             table.sortOn(sort);
         }
@@ -192,7 +193,7 @@ public class Main {
 
     private static void runAllocs(CommandLine cmd) {
         switch (cmd.args.get(0)) {
-            case "parse": {
+            case "list": {
                 AllocTable table = new AllocTable(AllocationsParserAdapter.parse(cmd.args.get(1)));
                 processTable(cmd, table);
                 TableFormatter<AllocRow> fmt = pickFormatter(cmd,

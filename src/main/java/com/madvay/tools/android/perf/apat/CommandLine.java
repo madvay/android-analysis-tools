@@ -27,6 +27,9 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +46,8 @@ public class CommandLine {
 
     private static final Splitter KV_SPLIT = Splitter.on('=').limit(2);
     private static final Splitter SPEC_SPLIT = Splitter.on(':').limit(2);
-    private static final Splitter CONJ_SPLIT = Splitter.on(';');
+    private static final Splitter CONJ_SPLIT = Splitter.on(',');
+    private static final Splitter LIST_SPLIT = Splitter.on(',');
 
     public CommandLine(String[] argv) {
         if (argv.length < 1) {
@@ -53,13 +57,44 @@ public class CommandLine {
 
         args = new ArrayList<>();
         flags = LinkedListMultimap.create();
-        for (int i = 1; i < argv.length; i++) {
-            if (argv[i].startsWith("--")) {
-                List<String> kv = KV_SPLIT.splitToList(argv[i].substring(2));
-                flags.put(kv.get(0), kv.get(1));
+        List<String> allArgs = Lists.newArrayList(argv);
+        allArgs.remove(0);
+        parseArgs(allArgs);
+    }
+
+    private void parseArgs(Iterable<String> allArgs) {
+        for (String arg : allArgs) {
+            parseArg(arg);
+        }
+    }
+
+    private void parseArg(String arg) {
+        if (arg.startsWith("--")) {
+            List<String> kv = KV_SPLIT.splitToList(arg.substring(2));
+            if (kv.get(0).equals("config")) {
+                handleConfigFile(kv.get(1));
             } else {
-                args.add(argv[i]);
+                flags.put(kv.get(0), kv.get(1));
             }
+        } else {
+            args.add(arg);
+        }
+    }
+
+    private void handleConfigFile(String fname) {
+        List<String> internalArgs;
+        try {
+            internalArgs = Files.readAllLines(Paths.get(fname), Charsets.UTF_8);
+        } catch (IOException err) {
+            throw new IllegalArgumentException("Cannot load config file: " + fname, err);
+        }
+        for (String arg : internalArgs) {
+            arg = arg.trim();
+            // Skip comments
+            if (arg.startsWith("#") || arg.isEmpty()) {
+                continue;
+            }
+            parseArg(arg);
         }
     }
 
@@ -77,6 +112,16 @@ public class CommandLine {
 
     public List<String> getMultiFlag(String name) {
         return Lists.newArrayList(flags.get(name));
+    }
+
+    public List<String> getMultiFlagWithInternalLists(String name) {
+        return Lists.newArrayList(Iterables
+                .concat(Iterables.transform(flags.get(name), new Function<String, List<String>>() {
+                    @Override
+                    public List<String> apply(String input) {
+                        return LIST_SPLIT.splitToList(input);
+                    }
+                })));
     }
 
     public List<FilterSpec> getFilterSpecsFlag(final String column) {

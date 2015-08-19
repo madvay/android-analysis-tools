@@ -18,12 +18,30 @@ AVAILABLE COMMANDS
  help               - Prints this usage message.
  version            - Prints version and copyright notice.
  license            - Prints the full LICENSE file.
- allocs             - Allocation tracking analysis:
-    parse <file>        - Simple dump from a DDMS .alloc file
-    top <file>          - Histogram [TODO]
+ allocs             - Allocation analysis on DDMS .alloc file
+    list <file>         - Query lists of allocations
+    top <file>          - Histograms for aggregate allocation
 
 CONFIGURATION
 
+ Data is processed in this order, for the given subcommands:
+ 1. Call site transformation [allocs list, allocs top]
+ 2. Split by trace [allocs list, allocs top]
+ 3. Row filtering [allocs list, allocs top]
+ 4. Row aggregation [allocs top]
+ 5. Sorting [allocs list, allocs top]
+ 6. Formatting [allocs list, allocs top]
+
+ See EXAMPLES below for common queries and use-cases.
+
+ Because queries can get long and be difficult to escape in your
+ shell, you can instead store (a subset of) your flags in a file:
+
+   --config=file.cfg
+
+ Config files provide one argument per line.  Blank lines or lines
+ beginning in hash symbols are ignored for whitespace and comments.
+ Config files can reference other config files using --config.
 
 CALL SITE TRANSFORMS:
  --traceTransform=<transformSpec>
@@ -111,7 +129,7 @@ ROW MATCHING FILTERS:
 
  --stackTrace=<filter> - Joined allocation site stack trace
 
- Match attributes via a filter spec,
+ Matches attributes via a filter spec,
  [<comparison>:]<rhs> where comparison is one of:
      eq  - lhs == rhs, default comparison when none specified
      ne  - lhs != rhs
@@ -124,10 +142,13 @@ ROW MATCHING FILTERS:
      ss  - substring, i.e. lhs.contains(rhs)
  Repeating a flag creates a conjunction filter.
 
-
  Ex: --thread=ne:14 --size=gt:16 --size=le:128
- matches allocations on thread 14, with a size greater
+ matches allocations not on thread 14, with a size greater
  than 16 bytes and less than or equal to 128 bytes.
+
+ Ex: --thread=12
+ matches allocations on thread 12.
+
 
 OTHER FLAGS:
 
@@ -147,27 +168,20 @@ OTHER FLAGS:
                          Default: pretty
 
 
- Flags are processed in the order:
- 1. Call site transformation
- 2. Split by trace.
- 3. Row filtering.
- 4. Sorting.
- 5. Formating.
-
 EXAMPLES:
 
-apat allocs parse file.alloc --sort=-size --thread=1 --format=csv \
-    --allocated=eq:java.lang.String
+apat allocs list file.alloc --sort=-size --thread=1 --format=csv \
+    --allocated=java.lang.String
 
   Dumps a CSV of all String allocations on thread 1 in descending size order.
 
 
-apat allocs parse file.alloc --sort=id --size=gt:1024
+apat allocs list file.alloc --sort=id --size=gt:1024
 
   Pretty-prints in order of allocation everything above 1KB.
 
 
-apat allocs parse file.alloc --sort=id --format=pretty \
+apat allocs list file.alloc --sort=id --format=pretty \
     --traceTransform=prune:underPackage:java \
     --traceTransform=prune:underPackage:javax
 
@@ -175,7 +189,7 @@ apat allocs parse file.alloc --sort=id --format=pretty \
   methods elided from the stack traces.
 
 
-apat allocs parse file.alloc --sort=thread,id --format=pretty \
+apat allocs list file.alloc --sort=thread,id --format=pretty \
     --traceTransform=pruneAbove:underPackage:com.example \
     --stackTrace=re:.\*com\\.example\\..\*
 
@@ -185,14 +199,34 @@ apat allocs parse file.alloc --sort=thread,id --format=pretty \
   did not involve the com.example package.
 
 
-apat allocs parse file.alloc --sort=thread,id --format=pretty \
-    --traceTransform=pruneAbove:underPackage:com.example;methodEq:\<init\> \
+apat allocs list file.alloc --sort=thread,id --format=pretty \
+    --traceTransform=pruneAbove:underPackage:com.example,methodEq:\<init\> \
+    --traceTransform=prune:underPackage:java \
+    --traceTransform=prune:underPackage:javax \
     --stackTrace=re:.\*com\\.example\\..\*
 
   Pretty-prints in order of allocation but separated by thread,
   showing the ultimate allocation site as the last responsible constructor
   under the com.example.** package, and excluding all allocations that
-  did not involve the com.example package.
+  did not involve the com.example package, and ignoring all calls
+  within the java.** and javax.** packages.
+
+  This example can also be run as:
+
+apat allocs list file.alloc --config=file.cfg
+
+  where file.cfg contains:
+
+--sort=thread,id
+--format=pretty
+# Hold final constructor under com.example.** responsible.
+--traceTransform=pruneAbove:underPackage:com.example,methodEq:<init>
+--traceTransform=prune:underPackage:java
+--traceTransform=prune:underPackage:javax
+--stackTrace=re:.*com\.example\..*
+
+  Note that characters no longer need to be shell-escaped, and comments
+  are allowed.
 ```
 
 ## Building from source
