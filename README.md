@@ -81,16 +81,20 @@ CALL SITE TRANSFORMS:
                        - STE class under package or any subpackage.
  inPackage:<package>   - STE class in the package (only).
 
- class:<class>         - STE class equal to that class.
+ classEq:<class>       - STE class equal to that class.
  classRe:<classRegex>  - STE class that matches the given pattern.
+ class:<text>          - STE class contains text.
 
- method:<method>       - STE method equal to that method.
+ methodEq:<method>     - STE method equal to that method.
  methodRe:<methodRegex>
                        - STE method that matches the given pattern.
+ method:<text>         - STE method contains text.
 
- site:<classAndMethod> - STE "class.method" equal to the site.
+ siteEq:<classAndMethod>
+                       - STE "class.method" equal to the site.
  siteRe:<classAndMethodRegex>
                        - STE "class.method" that matches the given pattern.
+ site:<text>           - STE "class.method" contains text.
 
  When multiple expressions are present, the elementSpec is treated as a
  conjunction.
@@ -117,6 +121,7 @@ ROW MATCHING FILTERS:
      ge  - lhs >= rhs
      re  - lhs matches the regular expression rhs
      nre - lhs does not march regular expression rhs
+     ss  - substring, i.e. lhs.contains(rhs)
  Repeating a flag creates a conjunction filter.
 
 
@@ -181,7 +186,7 @@ apat allocs parse file.alloc --sort=thread,id --format=pretty \
 
 
 apat allocs parse file.alloc --sort=thread,id --format=pretty \
-    --traceTransform=pruneAbove:underPackage:com.example;method:\<init\> \
+    --traceTransform=pruneAbove:underPackage:com.example;methodEq:\<init\> \
     --stackTrace=re:.\*com\\.example\\..\*
 
   Pretty-prints in order of allocation but separated by thread,

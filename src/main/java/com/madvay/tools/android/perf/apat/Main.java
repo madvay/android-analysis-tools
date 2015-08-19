@@ -155,6 +155,7 @@ public class Main {
             }
         } catch (Exception e) {
             err(e.getMessage());
+            e.printStackTrace(System.out);
             printUsage();
             System.exit(-1);
         }

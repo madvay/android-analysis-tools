@@ -126,31 +126,36 @@ public class CommandLine {
 
     private static Predicate<StackTraceElement> parseStePOperator(String s) {
         List<String> spl = SPEC_SPLIT.splitToList(s);
+        String operator = spl.get(0);
         if (spl.size() == 1) {
-            return StePredicates.contains(spl.get(0));
+            return StePredicates.contains(operator);
         }
-        switch (spl.get(0)) {
+        String arg = spl.get(1);
+        switch (operator) {
             case "underPackage":
-                return StePredicates.underPackage(spl.get(1));
+                return StePredicates.underPackage(arg);
             case "inPackage":
-                return StePredicates.inPackage(spl.get(1));
+                return StePredicates.inPackage(arg);
             case "class":
+                return StePredicates.classContains(arg);
             case "classEq":
-                return StePredicates.classEq(spl.get(1));
+                return StePredicates.classEq(arg);
             case "classRe":
-                return StePredicates.classRe(spl.get(1));
+                return StePredicates.classRe(arg);
             case "method":
+                return StePredicates.methodContains(arg);
             case "methodEq":
-                return StePredicates.methodEq(spl.get(1));
+                return StePredicates.methodEq(arg);
             case "methodRe":
-                return StePredicates.methodRe(spl.get(1));
+                return StePredicates.methodRe(arg);
             case "site":
+                return StePredicates.siteContains(arg);
             case "siteEq":
-                return StePredicates.siteEq(spl.get(1));
+                return StePredicates.siteEq(arg);
             case "siteRe":
-                return StePredicates.siteRe(spl.get(1));
+                return StePredicates.siteRe(arg);
             case "contains":
-                return StePredicates.contains(spl.get(1));
+                return StePredicates.contains(arg);
             default:
                 throw new IllegalArgumentException("Unknown element spec: " + s);
         }

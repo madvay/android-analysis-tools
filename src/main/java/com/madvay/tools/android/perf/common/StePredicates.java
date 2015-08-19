@@ -87,6 +87,33 @@ public final class StePredicates {
         };
     }
 
+    public static Predicate<StackTraceElement> classContains(final String n) {
+        return new Predicate<StackTraceElement>() {
+            @Override
+            public boolean apply(StackTraceElement input) {
+                return input.getClassName().contains(n);
+            }
+        };
+    }
+
+    public static Predicate<StackTraceElement> methodContains(final String n) {
+        return new Predicate<StackTraceElement>() {
+            @Override
+            public boolean apply(StackTraceElement input) {
+                return input.getMethodName().contains(n);
+            }
+        };
+    }
+
+    public static Predicate<StackTraceElement> siteContains(final String n) {
+        return new Predicate<StackTraceElement>() {
+            @Override
+            public boolean apply(StackTraceElement input) {
+                return (input.getClassName() + "." + input.getMethodName()).contains(n);
+            }
+        };
+    }
+
     public static Predicate<StackTraceElement> classRe(final String n) {
         return new Predicate<StackTraceElement>() {
             private final Pattern p = Pattern.compile(n);
