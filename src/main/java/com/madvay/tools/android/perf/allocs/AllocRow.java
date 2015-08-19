@@ -33,6 +33,7 @@ public class AllocRow extends TraceTransformableRow {
     public final int bytes;
     public final int thread;
     public final List<StackTraceElement> stackTrace;
+    public final StackTraceElement allocator;
 
     public AllocRow(int id, String allocatedClass, int bytes, int thread,
                     StackTraceElement[] stackTrace) {
@@ -41,6 +42,7 @@ public class AllocRow extends TraceTransformableRow {
         this.bytes = bytes;
         this.thread = thread;
         this.stackTrace = ImmutableList.copyOf(stackTrace);
+        this.allocator = this.stackTrace.isEmpty() ? null : this.stackTrace.get(0);
     }
 
     public AllocRow(int id, String allocatedClass, int bytes, int thread,
@@ -50,6 +52,7 @@ public class AllocRow extends TraceTransformableRow {
         this.bytes = bytes;
         this.thread = thread;
         this.stackTrace = ImmutableList.copyOf(stackTrace);
+        this.allocator = this.stackTrace.isEmpty() ? null : this.stackTrace.get(0);
     }
 
     @Override
@@ -60,9 +63,9 @@ public class AllocRow extends TraceTransformableRow {
     static final class Adapter extends RowAdapter<AllocRow> {
 
         Adapter() {
-            super(ImmutableList.of("id", "allocated", "size", "thread", "stackTrace"), ImmutableList
-                    .of(CoerceType.NUMERIC, CoerceType.TEXT, CoerceType.NUMERIC, CoerceType.NUMERIC,
-                            CoerceType.TEXT));
+            super(ImmutableList.of("id", "allocated", "size", "thread", "stackTrace", "allocator"),
+                    ImmutableList.of(CoerceType.NUMERIC, CoerceType.TEXT, CoerceType.NUMERIC,
+                            CoerceType.NUMERIC, CoerceType.TEXT, CoerceType.TEXT));
         }
 
         @Override
@@ -78,6 +81,8 @@ public class AllocRow extends TraceTransformableRow {
                     return row.thread;
                 case "stackTrace":
                     return row.stackTrace;
+                case "allocator":
+                    return row.allocator == null ? "{none}" : row.allocator;
                 default:
                     throw new IllegalArgumentException();
             }

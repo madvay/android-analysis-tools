@@ -129,6 +129,8 @@ ROW MATCHING FILTERS:
 
  --stackTrace=<filter> - Joined allocation site stack trace
 
+ --allocator=<filter>  - STE at the top of the stack trace
+
  Matches attributes via a filter spec,
  [<comparison>:]<rhs> where comparison is one of:
      eq  - lhs == rhs, default comparison when none specified

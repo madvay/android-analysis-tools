@@ -163,29 +163,50 @@ public class Main {
     }
 
     private static <T extends TraceTransformableRow> void  //
-    processTable(CommandLine cmd, TraceTransformableTable<T> table) {
-        // Transform
-        for (TraceTransformers.TT tt : cmd.getTraceTransformsFlag("traceTransform")) {
-            table.transformTraces(tt);
-        }
+    runAllocsListProcessing(CommandLine cmd, TraceTransformableTable<T> table) {
+        tableTraceTransform(cmd, table);
+        tableTraceSplit(cmd, table);
+        tableRowsFilter(cmd, table);
+        tableRowsSort(cmd, table);
+    }
 
-        // Split
-        if (Boolean.parseBoolean(cmd.getUnaryFlagWithDefault("splitByTrace", "false"))) {
-            table.splitTraces();
-        }
+    private static <T extends TraceTransformableRow> void  //
+    runAllocsTopProcessing(CommandLine cmd, TraceTransformableTable<T> table) {
+        tableTraceTransform(cmd, table);
+        tableTraceSplit(cmd, table);
+        tableRowsFilter(cmd, table);
+        tableRowsSort(cmd, table);
+    }
 
-        // Filter
+    private static <T extends TraceTransformableRow> void tableRowsSort(CommandLine cmd,
+                                                                        TraceTransformableTable<T> table) {
+        List<String> sort = cmd.getMultiFlagWithInternalLists("sort");
+        out(sort.toString());
+        if (!sort.isEmpty()) {
+            table.sortOn(sort);
+        }
+    }
+
+    private static <T extends TraceTransformableRow> void tableRowsFilter(CommandLine cmd,
+                                                                          TraceTransformableTable<T> table) {
         for (String key : table.getAdapter().columns) {
             for (FilterSpec spec : cmd.getFilterSpecsFlag(key)) {
                 table.matching(spec);
             }
         }
+    }
 
-        // Sort
-        List<String> sort = cmd.getMultiFlagWithInternalLists("sort");
-        out(sort.toString());
-        if (!sort.isEmpty()) {
-            table.sortOn(sort);
+    private static <T extends TraceTransformableRow> void tableTraceSplit(CommandLine cmd,
+                                                                          TraceTransformableTable<T> table) {
+        if (Boolean.parseBoolean(cmd.getUnaryFlagWithDefault("splitByTrace", "false"))) {
+            table.splitTraces();
+        }
+    }
+
+    private static <T extends TraceTransformableRow> void tableTraceTransform(CommandLine cmd,
+                                                                              TraceTransformableTable<T> table) {
+        for (TraceTransformers.TT tt : cmd.getTraceTransformsFlag("traceTransform")) {
+            table.transformTraces(tt);
         }
     }
 
@@ -197,20 +218,36 @@ public class Main {
     }
 
     private static void runAllocs(CommandLine cmd) {
+        AllocTable table = new AllocTable(AllocationsParserAdapter.parse(cmd.args.get(1)));
         switch (cmd.args.get(0)) {
             case "list": {
-                AllocTable table = new AllocTable(AllocationsParserAdapter.parse(cmd.args.get(1)));
-                processTable(cmd, table);
-                TableFormatter<AllocRow> fmt = pickFormatter(cmd,
-                        ImmutableMap.<String, Function<? super AllocRow, String>>of(  //
-                                "csv",
-                                new CsvOutput<>(table.getAdapter().columns, table.getAdapter()),  //
-                                "pretty", new PrettyAllocRowOutput()));
-                out(fmt.format(table));
+                runAllocsList(cmd, table);
+                break;
+            }
+            case "top": {
+                runAllocsTop(cmd, table);
                 break;
             }
             default:
                 throw new IllegalArgumentException("Unknown allocs subcommand: " + cmd.args.get(0));
         }
+    }
+
+    private static void runAllocsTop(CommandLine cmd, AllocTable table) {
+        runAllocsTopProcessing(cmd, table);
+        TableFormatter<AllocRow> fmt =
+                pickFormatter(cmd, ImmutableMap.<String, Function<? super AllocRow, String>>of(  //
+                        "csv", new CsvOutput<>(table.getAdapter().columns, table.getAdapter()),  //
+                        "pretty", new PrettyAllocRowOutput()));
+        out(fmt.format(table));
+    }
+
+    private static void runAllocsList(CommandLine cmd, AllocTable table) {
+        runAllocsListProcessing(cmd, table);
+        TableFormatter<AllocRow> fmt =
+                pickFormatter(cmd, ImmutableMap.<String, Function<? super AllocRow, String>>of(  //
+                        "csv", new CsvOutput<>(table.getAdapter().columns, table.getAdapter()),  //
+                        "pretty", new PrettyAllocRowOutput()));
+        out(fmt.format(table));
     }
 }
