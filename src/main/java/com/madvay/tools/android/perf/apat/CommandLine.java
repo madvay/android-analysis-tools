@@ -98,17 +98,24 @@ public class CommandLine {
             case "eq":
                 return FilterSpec.FilterType.EQUALS;
             case "ne":
+            case "neq":
                 return FilterSpec.FilterType.NOT_EQUALS;
             case "lt":
+            case "l":
                 return FilterSpec.FilterType.LESS;
             case "le":
+            case "leq":
                 return FilterSpec.FilterType.LEQ;
             case "gt":
+            case "g":
                 return FilterSpec.FilterType.GREATER;
             case "ge":
+            case "geq":
                 return FilterSpec.FilterType.GEQ;
             case "re":
                 return FilterSpec.FilterType.RE_MATCH;
+            case "nre":
+                return FilterSpec.FilterType.NOT_RE_MATCH;
             default:
                 throw new IllegalArgumentException("Bad filter type: " + pr);
         }

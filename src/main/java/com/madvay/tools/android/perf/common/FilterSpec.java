@@ -35,6 +35,7 @@ public class FilterSpec {
         GREATER,
         GEQ,
         RE_MATCH,
+        NOT_RE_MATCH,
     }
 
     public final String columnName;

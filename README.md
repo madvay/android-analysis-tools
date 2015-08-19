@@ -19,25 +19,27 @@ AVAILABLE COMMANDS
  version            - Prints version and copyright notice.
  license            - Prints the full LICENSE file.
  allocs             - Allocation tracking analysis:
-    parse <file>        - Analyze a DDMS .alloc file
+    parse <file>        - Simple dump from a DDMS .alloc file
+    top <file>          - Histogram [TODO]
 
 COMMON FLAGS
 Filters:
- --id=<filter>         - Allocation id
+ --id=<filter>         - Allocation id (numeric)
  --allocated=<filter>  - Allocated class name
- --size=<filter>       - Allocation size in bytes
- --thread=<filter>     - Allocating thread id
+ --size=<filter>       - Allocation size in bytes (numeric)
+ --thread=<filter>     - Allocating thread id (numeric)
  --stackTrace=<filter> - Joined allocation site stack trace
 
  Match attributes via a filter spec,
  <comparison>:<rhs> where comparison is one of:
-     eq - lhs == rhs
-     ne - lhs != rhs
-     lt - lhs <  rhs
-     le - lhs <= rhs
-     gt - lhs >  rhs
-     ge - lhs >= rhs
-     re - lhs matches the regular expression rhs
+     eq  - lhs == rhs
+     ne  - lhs != rhs
+     lt  - lhs <  rhs
+     le  - lhs <= rhs
+     gt  - lhs >  rhs
+     ge  - lhs >= rhs
+     re  - lhs matches the regular expression rhs
+     nre - lhs does not march regular expression rhs
  Repeating a flag creates a conjunction filter.
 
  Ex: --thread=ne:14 --size=gt:16 --size=le:128

@@ -90,7 +90,8 @@ public abstract class Table<T extends Row> {
 
         public RowFilter(FilterSpec filterSpec) {
             this.filterSpec = filterSpec;
-            pat = filterSpec.filterType == FilterSpec.FilterType.RE_MATCH ?
+            pat = filterSpec.filterType == FilterSpec.FilterType.RE_MATCH ||
+                  filterSpec.filterType == FilterSpec.FilterType.NOT_RE_MATCH ?
                   Pattern.compile(filterSpec.rhs) : null;
         }
 
@@ -131,6 +132,8 @@ public abstract class Table<T extends Row> {
                     return c != 0;
                 case RE_MATCH:
                     return pat.matcher(lhsStr).matches();
+                case NOT_RE_MATCH:
+                    return !pat.matcher(lhsStr).matches();
                 default:
                     throw new IllegalArgumentException("Bad filterType: " + filterSpec.filterType);
             }
