@@ -6,7 +6,7 @@ Tools to analyze performance of Android applications.
 ## Running from a distribution
 Run the `bin/apat` script per the Usage section.
 
-See [walkthough.md](walkthrough.md) for a step-by-step walkthrough
+See [walkthough.md](https://github.com/madvay/android-analysis-tools/blob/master/walkthrough.md) for a step-by-step walkthrough
 of using `apat` to solve a real-life memory problem.
 
 ## Usage
@@ -303,5 +303,6 @@ apat allocs list file.alloc --config=file.cfg
 2.  Build and run from the local repository: `./apat [args]`
 
 ## License
-See the [LICENSE](LICENSE) and the [NOTICE](NOTICE) (per Section 4 d of the
-License) files.
+See the [LICENSE](https://github.com/madvay/android-analysis-tools/blob/master/LICENSE)
+and the [NOTICE](https://github.com/madvay/android-analysis-tools/blob/master/NOTICE)
+(per Section 4 d of the License) files.
