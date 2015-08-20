@@ -170,6 +170,12 @@ AGGREGATION (only for [allocs top]):
                          allocatorMethod.
 
 
+LISTING (only for [allocs list]):
+
+ --samples=<N>         - Return only a random sample of N rows.
+                         Default: -1 (all)
+
+
 OTHER FLAGS:
 
  --splitByTrace=true   - Splits a row with multiple trace elements [A,B,C]

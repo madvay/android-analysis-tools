@@ -24,6 +24,7 @@ import com.google.common.collect.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -63,6 +64,24 @@ public abstract class Table<T extends Row> {
             }
         }
         rows = order.sortedCopy(rows);
+    }
+
+    public void sample(int n) {
+        if (n < 0 || n >= rows.size()) {
+            return;
+        }
+        List<T> nextRows = Lists.newArrayList();
+        Random rnd = new Random(3493);
+        while (n > 0) {
+            T row = null;
+            do {
+                int i = rnd.nextInt(rows.size());
+                row = rows.get(i);
+            } while (nextRows.contains(row));
+            nextRows.add(row);
+            n--;
+        }
+        rows = nextRows;
     }
 
     public void matching(FilterSpec spec) {

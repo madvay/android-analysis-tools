@@ -168,6 +168,7 @@ public class Main {
         tableTraceTransform(cmd, table);
         tableTraceSplit(cmd, table);
         tableRowsFilter(cmd, table);
+        tableRowsSample(cmd, table);
         tableRowsSort(cmd, table);
     }
 
@@ -188,6 +189,10 @@ public class Main {
 
     private static <T extends Row> void tableRowsSort(CommandLine cmd, Table<T> table) {
         tableRowsSort(cmd, table, ImmutableList.<String>of());
+    }
+
+    private static <T extends Row> void tableRowsSample(CommandLine cmd, Table<T> table) {
+        table.sample(Integer.parseInt(cmd.getUnaryFlagWithDefault("samples", "-1")));
     }
 
     private static <T extends Row> void tableRowsSort(CommandLine cmd, Table<T> table,
