@@ -84,7 +84,7 @@ com.google.common.collect.Sets.newTreeSet   |   131808
 ```
 
 Nothing ground breaking there.  Let's make sure that MM.getStyle is the best
-bang for our back to tackle within our own codebase, and see the line numbers as well:
+bang for our buck to tackle within our own codebase, and see the line numbers as well:
 
 ```sh
 apat allocs top $AF --stackTrace=contains:inflate --groupBy=allocator \
