@@ -36,6 +36,8 @@ public class FilterSpec {
         GEQ,
         RE_MATCH,
         NOT_RE_MATCH,
+        CONTAINS,
+        NOT_CONTAINS
     }
 
     public final String columnName;

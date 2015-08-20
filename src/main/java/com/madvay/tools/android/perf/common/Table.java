@@ -174,17 +174,17 @@ public abstract class Table<T extends Row> {
                     long lhs = Long.parseLong(lhsStr);
                     long rhs = Long.parseLong(filterSpec.rhs);
                     long c = Long.compare(lhs, rhs);
-                    return doCompare(lhsStr, c);
+                    return doCompare(lhsStr, c, filterSpec.rhs);
                 }
                 case TEXT: {
-                    return doCompare(lhsStr, lhsStr.compareTo(filterSpec.rhs));
+                    return doCompare(lhsStr, lhsStr.compareTo(filterSpec.rhs), filterSpec.rhs);
                 }
                 default:
                     throw new IllegalArgumentException("Bad coerceType: " + adapter.types.get(i));
             }
         }
 
-        private boolean doCompare(String lhsStr, long c) {
+        private boolean doCompare(String lhsStr, long c, String rhsStr) {
             switch (filterSpec.filterType) {
                 case GEQ:
                     return c >= 0;
@@ -202,6 +202,10 @@ public abstract class Table<T extends Row> {
                     return pat.matcher(lhsStr).matches();
                 case NOT_RE_MATCH:
                     return !pat.matcher(lhsStr).matches();
+                case CONTAINS:
+                    return lhsStr.contains(rhsStr);
+                case NOT_CONTAINS:
+                    return !lhsStr.contains(rhsStr);
                 default:
                     throw new IllegalArgumentException("Bad filterType: " + filterSpec.filterType);
             }

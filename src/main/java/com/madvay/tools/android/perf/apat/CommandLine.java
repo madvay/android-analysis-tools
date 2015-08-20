@@ -251,6 +251,12 @@ public class CommandLine {
                 return FilterSpec.FilterType.RE_MATCH;
             case "nre":
                 return FilterSpec.FilterType.NOT_RE_MATCH;
+            case "contains":
+            case "ss":
+                return FilterSpec.FilterType.CONTAINS;
+            case "notcontains":
+            case "nss":
+                return FilterSpec.FilterType.NOT_CONTAINS;
             default:
                 throw new IllegalArgumentException("Bad filter type: " + pr);
         }

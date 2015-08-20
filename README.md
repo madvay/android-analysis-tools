@@ -149,6 +149,7 @@ ROW MATCHING FILTERS:
      re  - lhs matches the regular expression rhs
      nre - lhs does not march regular expression rhs
      ss  - substring, i.e. lhs.contains(rhs)
+     nss - not substring, i.e. !lhs.contains(rhs)
  Repeating a flag creates a conjunction filter.
 
  Ex: --thread=ne:14 --size=gt:16 --size=le:128
