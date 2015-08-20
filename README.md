@@ -4,6 +4,9 @@ Tools to analyze performance of Android applications.
 ## Running from a distribution
 Run the `bin/apat` script per the Usage section.
 
+See [walkthough.md](walkthrough.md) for a step-by-step walkthrough
+of using `apat` to solve a real-life memory problem.
+
 ## Usage
 <!-- The content between the ```hashes``` will also be displayed
      as the usage notice by the Java binary. -->
