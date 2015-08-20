@@ -1,2 +1,21 @@
 language: java
 
+# Multi-os in beta
+#os:
+#  - linux
+#  - osx
+
+jdk:
+  - oraclejdk7
+  - openjdk7
+  - oraclejdk8
+
+sudo: false
+
+install: 
+  - ./gradlew wrapper
+  - ./gradlew dependencies
+
+script:
+  - ./gradlew build
+  - ./gradlew installMiniDist
