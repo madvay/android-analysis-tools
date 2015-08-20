@@ -1,6 +1,8 @@
 # apat: android-analysis-tools
 Tools to analyze performance of Android applications.
 
+[![Build Status](https://travis-ci.org/madvay/android-analysis-tools.svg)](https://travis-ci.org/madvay/android-analysis-tools)
+
 ## Running from a distribution
 Run the `bin/apat` script per the Usage section.
 
