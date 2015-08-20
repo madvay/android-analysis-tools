@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>apat: Android performance analysis tools by madvay</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">apat: Android performance analysis tools</h1>
+      <h2 class="project-tagline"></h2>
+      <a href="https://github.com/madvay/android-analysis-tools" class="btn">View on GitHub</a>
+      <a href="https://github.com/madvay/android-analysis-tools/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/madvay/android-analysis-tools/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="apat-android-analysis-tools" class="anchor" href="#apat-android-analysis-tools" aria-hidden="true"><span class="octicon octicon-link"></span></a>apat: android-analysis-tools</h1>
+
+<p>Tools to analyze performance of Android applications.</p>
+
+<p><a href="https://travis-ci.org/madvay/android-analysis-tools"><img src="https://travis-ci.org/madvay/android-analysis-tools.svg?branch=master" alt="Build Status"></a></p>
+
+<h2>
+<a id="running-from-a-distribution" class="anchor" href="#running-from-a-distribution" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running from a distribution</h2>
+
+<p>Run the <code>bin/apat</code> script per the Usage section.</p>
+
+<p>See <a href="walkthrough.md">walkthough.md</a> for a step-by-step walkthrough
+of using <code>apat</code> to solve a real-life memory problem.</p>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+
+
+<pre><code>android-analysis-tools - https://madvay.com/source/apat
+Tools to analyze performance of Android applications.
+
+USAGE
+apat &lt;command&gt; &lt;options&gt;
+
+AVAILABLE COMMANDS
+ help               - Prints this usage message.
+ version            - Prints version and copyright notice.
+ license            - Prints the full LICENSE file.
+ allocs             - Allocation analysis on DDMS .alloc file
+    list &lt;file&gt;         - Query lists of allocations
+    top &lt;file&gt;          - Histograms for aggregate allocation
+
+CONFIGURATION
+
+ Data is processed in this order, for the given subcommands:
+ 1. Call site transformation [allocs list, allocs top]
+ 2. Split by trace [allocs list, allocs top]
+ 3. Row filtering [allocs list, allocs top]
+ 4. Row aggregation [allocs top]
+ 5. Sorting [allocs list, allocs top]
+ 6. Formatting [allocs list, allocs top]
+
+ See EXAMPLES below for common queries and use-cases.
+
+ Because queries can get long and be difficult to escape in your
+ shell, you can instead store (a subset of) your flags in a file:
+
+   --config=file.cfg
+
+ Config files provide one argument per line.  Blank lines or lines
+ beginning in hash symbols are ignored for whitespace and comments.
+ Config files can reference other config files using --config.
+
+CALL SITE TRANSFORMS:
+ --traceTransform=&lt;transformSpec&gt;
+
+ Adjusts every stack trace per the spec.
+ Given a stack trace [A, B, C], A is the ultimate call site,
+ B is the penultimate call site and so on.  A is considered
+ 'above' B for the purposes of transforms.  A is also
+ considered 'top' and C 'bottom'.
+
+ The transformSpec is one of:
+
+ pruneRecursion        - Removes A from [A, B] if A has the same class
+                         and method as B.  Note that overloaded variants
+                         will be treated as "recursion" by this definition.
+
+ prune:&lt;elementSpec&gt;   - Removes stack trace elements (STE)
+                         which match the elementSpec.
+
+ keep:&lt;elementSpec&gt;    - Keeps only STEs which match the
+                         elementSpec.
+
+ pruneAbove:&lt;elementSpec&gt;
+                       - Remove all STE above the first STE
+                         which matches the elementSpec. If no STE
+                         matches the elementSpec, all STEs are pruned.
+
+ pruneBelow:&lt;elementSpec&gt;
+                       - Remove all STE below the last STE
+                         which matches the elementSpec. If no STE
+                         matches the elementSpec, all STEs are pruned.
+
+ keepAbove:&lt;elementSpec&gt;
+                       - Keeps only STE above the first STE
+                         which matches the elementSpec. If no STE
+                         matches the elementSpec, all STEs are kept.
+
+ keepBelow:&lt;elementSpec&gt;
+                       - Keeps only STE above the last STE
+                         which matches the elementSpec. If no STE
+                         matches the elementSpec, all STEs are kept.
+
+ Multiple transforms may be specified with multiple flags.
+ Note all such transformations are applied in order, and
+ before any filtering of rows based on the stack trace (see below).
+ Note that a row will not be filtered out automatically because no STEs
+ are left.
+
+ The elementSpec is a semicolon separated sequence of expressions:
+
+ [contains:]&lt;text&gt;     - STE textual form contains the text
+                         (default when no other operator is specified)
+
+ underPackage:&lt;package&gt;
+                       - STE class under package or any subpackage.
+ inPackage:&lt;package&gt;   - STE class in the package (only).
+
+ classEq:&lt;class&gt;       - STE class equal to that class.
+ classRe:&lt;classRegex&gt;  - STE class that matches the given pattern.
+ class:&lt;text&gt;          - STE class contains text.
+
+ methodEq:&lt;method&gt;     - STE method equal to that method.
+ methodRe:&lt;methodRegex&gt;
+                       - STE method that matches the given pattern.
+ method:&lt;text&gt;         - STE method contains text.
+
+ siteEq:&lt;classAndMethod&gt;
+                       - STE "class.method" equal to the site.
+ siteRe:&lt;classAndMethodRegex&gt;
+                       - STE "class.method" that matches the given pattern.
+ site:&lt;text&gt;           - STE "class.method" contains text.
+
+ When multiple expressions are present, the elementSpec is treated as a
+ conjunction.
+
+
+ROW MATCHING FILTERS:
+ --id=&lt;filter&gt;         - Allocation id (numeric)
+
+ --allocated=&lt;filter&gt;  - Allocated class name
+
+ --size=&lt;filter&gt;       - Allocation size in bytes (numeric)
+
+ --thread=&lt;filter&gt;     - Allocating thread id (numeric)
+
+ --stackTrace=&lt;filter&gt; - Joined allocation site stack trace
+
+ --allocator=&lt;filter&gt;  - STE at the top of the stack trace
+
+ --allocatorClass=&lt;filter&gt;
+                       - Class of STE at the top of the stack trace
+
+ --allocatorMethod=&lt;filter&gt;
+                       - "class.method" of STE at the top of the
+                         stack trace
+
+ Matches attributes via a filter spec,
+ [&lt;comparison&gt;:]&lt;rhs&gt; where comparison is one of:
+     eq  - lhs == rhs, default comparison when none specified
+     ne  - lhs != rhs
+     lt  - lhs &lt;  rhs
+     le  - lhs &lt;= rhs
+     gt  - lhs &gt;  rhs
+     ge  - lhs &gt;= rhs
+     re  - lhs matches the regular expression rhs
+     nre - lhs does not march regular expression rhs
+     ss  - substring, i.e. lhs.contains(rhs)
+     nss - not substring, i.e. !lhs.contains(rhs)
+ Repeating a flag creates a conjunction filter.
+
+ Ex: --thread=ne:14 --size=gt:16 --size=le:128
+ matches allocations not on thread 14, with a size greater
+ than 16 bytes and less than or equal to 128 bytes.
+
+ Ex: --thread=12
+ matches allocations on thread 12.
+
+
+AGGREGATION (only for [allocs top]):
+
+ --weight=&lt;column&gt;     - Choose between id (count), size (sum), or another
+                         column, which will be counted by its unique values.
+                         Default: size (sum)
+
+ --groupBy=&lt;column&gt;    - Specifies the column to group by, defaults to
+                         allocatorMethod.
+
+
+LISTING (only for [allocs list]):
+
+ --samples=&lt;N&gt;         - Return only a random sample of N rows.
+                         Default: -1 (all)
+
+
+OTHER FLAGS:
+
+ --splitByTrace=true   - Splits a row with multiple trace elements [A,B,C]
+                         into three rows, each one a single trace element
+                         [A], [B], and [C].  This is particularly useful
+                         to hold callers responsible for all their callees'
+                         allocations in [allocs top] mode.
+                         Default: false
+
+ --sort=&lt;spec&gt;         - Sorts the rows, where spec is a comma-separated
+                         list of columns.  A column prefixed with a hyphen
+                         is sorted in descending order, otherwise in
+                         ascending order.
+                         Ex: --sort=thread,-size (asc. by thread, then
+                         desc. by size)
+                         For [allocs top], defaults to {-weight,group}.
+                         For [allocs list], no default.  You can use any
+                         of the columns named above in 'row matching
+                         filters'.
+
+ --format=csv|pretty   - Selects the output format.
+                         Default: pretty
+
+
+PREREQUISITES:
+You need an .alloc file generated by DDMS in Android Studio or IntelliJ IDEA:
+https://developer.android.com/tools/debugging/debugging-studio.html#allocTracker
+
+
+EXAMPLES:
+
+apat allocs list file.alloc --sort=-size --thread=1 --format=csv \
+    --allocated=java.lang.String
+
+  Dumps a CSV of all String allocations on thread 1 in descending size order.
+
+
+apat allocs list file.alloc --sort=id --size=gt:1024
+
+  Pretty-prints in order of allocation everything above 1KB.
+
+
+apat allocs list file.alloc --sort=id --format=pretty \
+    --traceTransform=prune:underPackage:java \
+    --traceTransform=prune:underPackage:javax
+
+  Pretty-prints in order of allocation, with all java.** and javax.**
+  methods elided from the stack traces.
+
+
+apat allocs list file.alloc --sort=thread,id --format=pretty \
+    --traceTransform=pruneAbove:underPackage:com.example \
+    --stackTrace=re:.\*com\\.example\\..\*
+
+  Pretty-prints in order of allocation but separated by thread,
+  showing the ultimate allocation site as the last responsible method
+  under the com.example.** package, and excluding all allocations that
+  did not involve the com.example package.
+
+
+apat allocs top file.alloc --format=pretty \
+    --traceTransform=pruneAbove:underPackage:com.example \
+    --groupBy=allocatorMethod --thread=17 \
+    --splitByTrace=true
+
+  Displays the top methods in com.example both directly and indirectly
+  allocating memory on thread 17.  Memory not indirectly chargeable to a
+  com.example method will show up under {none}.  --splitByTrace=true causes
+  every method in the chain to have callees' memory charged to the caller
+  as well.
+
+
+apat allocs top file.alloc --format=pretty \
+    --traceTransform=prune:underPackage:java \
+    --traceTransform=prune:underPackage:javax \
+    --groupBy=allocatorClass
+
+  Displays the top classes outside of java/javax most closely responsible
+  for directly allocating memory.
+
+
+apat allocs list file.alloc --sort=thread,id --format=pretty \
+    --traceTransform=pruneAbove:underPackage:com.example,methodEq:\&lt;init\&gt; \
+    --traceTransform=prune:underPackage:java \
+    --traceTransform=prune:underPackage:javax \
+    --stackTrace=re:.\*com\\.example\\..\* \
+    --allocated=ne:java.lang.String
+
+  Pretty-prints in order of allocation but separated by thread,
+  showing the ultimate allocation site as the last responsible constructor
+  under the com.example.** package, and excluding all allocations that
+  did not involve the com.example package, and ignoring all calls
+  within the java.** and javax.** packages, and excluding allocations of
+  Strings.
+
+  This example can also be run as:
+
+apat allocs list file.alloc --config=file.cfg
+
+  where file.cfg contains:
+
+--sort=thread,id
+--format=pretty
+
+# Hold final constructor under com.example.** responsible.
+--traceTransform=pruneAbove:underPackage:com.example,methodEq:&lt;init&gt;
+
+--traceTransform=prune:underPackage:java
+--traceTransform=prune:underPackage:javax
+--stackTrace=re:.*com\.example\..*
+--allocated=ne:java.lang.String
+
+  Note that characters no longer need to be shell-escaped, and comments
+  are allowed.
+</code></pre>
+
+<h2>
+<a id="building-from-source" class="anchor" href="#building-from-source" aria-hidden="true"><span class="octicon octicon-link"></span></a>Building from source</h2>
+
+<ol>
+<li> Clone the repository:
+<code>git clone https://github.com/madvay/android-analysis-tools.git</code>
+</li>
+<li> Build and run from the local repository: <code>./apat [args]</code>
+</li>
+</ol>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>See the <a href="LICENSE">LICENSE</a> and the <a href="NOTICE">NOTICE</a> (per Section 4 d of the
+License) files.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/madvay/android-analysis-tools">apat: Android performance analysis tools</a> is maintained by <a href="https://github.com/madvay">madvay</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
