@@ -22,6 +22,7 @@ import com.madvay.tools.android.perf.common.StePredicates;
 import com.madvay.tools.android.perf.common.TraceTransformers;
 
 import com.google.common.base.*;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Lists;
@@ -68,10 +69,27 @@ public class CommandLine {
         }
     }
 
+    private boolean handleExpandedArg(String arg, List<String> kv) {
+        List<String> args = null;
+        switch (arg) {
+            case "autoboxing":
+                args = ImmutableList.of("--allocated=re:" +
+                    "java.lang.(Integer|Long|Double|Float|Byte|Short|Character)");
+                break;
+            default:
+                return false;
+        }
+        parseArgs(args);
+        return true;
+    }
+
     private void parseArg(String arg) {
         if (arg.startsWith("--")) {
-            List<String> kv = KV_SPLIT.splitToList(arg.substring(2));
-            if (kv.get(0).equals("config")) {
+            arg = arg.substring(2);
+            List<String> kv = KV_SPLIT.splitToList(arg);
+            if (handleExpandedArg(arg, kv)) {
+                // All done!
+            } else if (kv.get(0).equals("config")) {
                 handleConfigFile(kv.get(1));
             } else {
                 flags.put(kv.get(0), kv.get(1));

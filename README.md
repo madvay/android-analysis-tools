@@ -164,6 +164,10 @@ ROW MATCHING FILTERS:
  Ex: --thread=12
  matches allocations on thread 12.
 
+ Convenience filters:
+ --autoboxing          - Allocated object is one of the primitive autoboxing
+                         classes.
+
 
 AGGREGATION (only for [allocs top]):
 
