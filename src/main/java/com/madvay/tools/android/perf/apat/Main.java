@@ -17,6 +17,7 @@
 
 package com.madvay.tools.android.perf.apat;
 
+import com.madvay.tools.android.perf.BuildInfo;
 import com.madvay.tools.android.perf.allocs.AllocRow;
 import com.madvay.tools.android.perf.allocs.AllocTable;
 import com.madvay.tools.android.perf.allocs.AllocationsParserAdapter;
@@ -108,12 +109,18 @@ public class Main {
         }
     }
 
-    private static String getVersion() {
-        return Package.getPackage("com.madvay.tools.android.perf.apat").getSpecificationVersion();
-    }
-
     private static void printVersion() {
-        outln("Version " + getVersion());
+        outln(String.format("apat Version %s\n  Built at %s\n  On commit %s\n  Url: %s",
+                        BuildInfo.VERSION, BuildInfo.TIMESTAMP, BuildInfo.GIT_COMMIT,
+                        BuildInfo.URL));
+        if (BuildInfo.VERSION.contains("SNAPSHOT")) {
+            outln("*** Note: This is an unofficial snapshot release.");
+            outln("*** See https://madvay.com/source/apat for official releases.");
+        }
+        if (!BuildInfo.GIT_IS_CLEAN) {
+            outln("!!! Warning: This unofficial build was made with local modifications.");
+            outln("!!! See https://madvay.com/source/apat for official releases.");
+        }
         outln("---------------------------------------------------------------");
         try {
             List<String> lines =
