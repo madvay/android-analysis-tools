@@ -15,13 +15,6 @@
  *
  */
 
-group 'com.madvay.tools.android'
-version '0.2.0'
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.6'
-    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
-}
 
 buildscript {
     repositories {
@@ -30,6 +23,25 @@ buildscript {
     dependencies {
         classpath 'net.sf.proguard:proguard-gradle:5.2.1'
     }
+}
+
+plugins {
+    id "com.madvay.tools.build.gitbuildinfo" version "0.1.3-alpha"
+}
+
+buildStamp {
+    // The git commit SHA will be appended to this url to generate the final url.
+    repoBaseUrl "https://github.com/madvay/android-analysis-tools/tree/"
+    // BuildInfo.java will be added under this package.
+    packageName "com.madvay.tools.android.perf"
+}
+
+group 'com.madvay.tools.android'
+version '0.2.1-SNAPSHOT'
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.6'
+    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
 
 apply plugin: 'java'
