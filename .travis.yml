@@ -9,6 +9,7 @@ branches:
   only:
     - master
     - /^release.*$/
+    - /^v[0-9].*$/
 
 jdk:
   - oraclejdk7
